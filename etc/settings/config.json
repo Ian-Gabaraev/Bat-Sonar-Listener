@@ -1,0 +1,8 @@
+{
+  "device_name": "Pettersson",
+  "sample_rate": 128000,
+  "channel_count": 1,
+  "frames_per_buffer": 1024,
+  "mqtt_topic": "batsonar/stats",
+  "aws_endpoint": "a1234567.iot.us-east-1.amazonaws.com"
+}

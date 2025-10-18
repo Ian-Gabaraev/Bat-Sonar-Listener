@@ -1,0 +1,16 @@
+[Unit]
+Description=Bat Sonar Monitor
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/batd -c /etc/batd/config.toml
+Restart=always
+User=batd
+Group=audio
+AmbientCapabilities=CAP_SYS_NICE
+LimitRTPRIO=95
+LimitMEMLOCK=infinity
+
+[Install]
+WantedBy=multi-user.target
