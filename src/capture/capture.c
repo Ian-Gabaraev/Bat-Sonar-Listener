@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <portaudio.h>
+#include <string.h>
 
 #define ULTRASONIC_DEVICE_THRESHOLD_HZ 48000
 #define DEVICE_INFO_SEPARATOR "*****************************\n"
@@ -31,29 +32,32 @@ void get_audio_devices() {
     Pa_Terminate();
 }
 
-AvailableDevices get_ultrasonic_devices() {
+void load_ultrasonic_devices(AvailableDevices *available_devices) {
     Pa_Initialize();
     const int num_devices = Pa_GetDeviceCount();
 
-    AvailableDevices available_devices;
-    available_devices.device_count = 0;
+    available_devices->device_count = 0;
 
     for (int i = 0; i < num_devices; i++) {
         const PaDeviceInfo *device_info = Pa_GetDeviceInfo(i);
         if (device_info->defaultSampleRate > ULTRASONIC_DEVICE_THRESHOLD_HZ) {
-
-            available_devices.devices[available_devices.device_count] = i;
-            available_devices.device_count++;
-
-            const double device_sr_khz = device_info->defaultSampleRate / 1000;
-            printf("Device index: %d\n", i);
-            printf("Device name: %s\n", device_info->name);
-            printf("Max input channels: %d\n", device_info->maxInputChannels);
-            printf("Default sample rate: %.0f kHz \n", device_sr_khz);
-            get_host_api_info(device_info->hostApi);
-            printf(DEVICE_INFO_SEPARATOR);
+            AudioDevice dev;
+            strncpy(dev.device_name, device_info->name, sizeof(dev.device_name));
+            dev.maxInputChannels = device_info->maxInputChannels;
+            dev.maxOutputChannels = device_info->maxOutputChannels;
+            dev.defaultSampleRateKhz = device_info->defaultSampleRate / 1000;
+            dev.device_id = i;
+            available_devices->devices[available_devices->device_count++] = dev;
         }
     }
     Pa_Terminate();
-    return available_devices;
+}
+
+void describe_available_ultrasonic_devices(AvailableDevices *available_devices) {
+    printf("Found potential ultrasonic devices: %d \n", available_devices->device_count);
+    for (int i = 0; i < available_devices->device_count; i++) {
+        printf("Device #%d: \n", available_devices->devices[i].device_id);
+        printf("Name %s\n", available_devices->devices[i].device_name);
+        printf(DEVICE_INFO_SEPARATOR);
+    }
 }
