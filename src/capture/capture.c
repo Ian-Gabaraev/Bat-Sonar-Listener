@@ -58,6 +58,7 @@ void describe_available_ultrasonic_devices(AvailableDevices *available_devices) 
     for (int i = 0; i < available_devices->device_count; i++) {
         printf("Device #%d: \n", available_devices->devices[i].device_id);
         printf("Name %s\n", available_devices->devices[i].device_name);
+        printf("Sampling rate %.0f kHz\n", available_devices->devices[i].defaultSampleRateKhz);
         printf(DEVICE_INFO_SEPARATOR);
     }
 }
