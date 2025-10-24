@@ -8,6 +8,83 @@
 #define DEVICE_INFO_SEPARATOR "*****************************\n"
 
 
+static int audioCallback(
+    const void *inputBuffer,
+    void *outputBuffer,
+    unsigned long framesPerBuffer,
+    const PaStreamCallbackTimeInfo* timeInfo,
+    PaStreamCallbackFlags statusFlags,
+    void *userData
+) {
+    (void)outputBuffer;
+    (void)timeInfo;
+    (void)statusFlags;
+    (void)userData;
+
+    if (inputBuffer) {
+        const float *in = inputBuffer;
+        printf("%f\n", *in);
+    }
+    return paContinue;
+}
+
+int start_stream(const int frames, const AudioDevice *audio_device) {
+    printf("Starting capture from: %s\n", audio_device->device_name);
+    printf("Sample size: %d\n", frames);
+    printf("Press Enter to start\n");
+    getchar();
+    PaError err;
+    PaStream *stream = NULL;
+
+    if ((err = Pa_Initialize()) != paNoError) {
+        printf("PortAudio init error: %s\n", Pa_GetErrorText(err));
+        return 1;
+    }
+
+    PaStreamParameters inputParams;
+    const int channels = audio_device->maxInputChannels;
+
+    inputParams.device = audio_device->device_id;
+    inputParams.channelCount = channels;
+    inputParams.sampleFormat = paFloat32;
+    inputParams.suggestedLatency =
+        Pa_GetDeviceInfo(audio_device->device_id)->defaultLowInputLatency;
+    inputParams.hostApiSpecificStreamInfo = NULL;
+
+    err = Pa_OpenStream(
+        &stream,
+        &inputParams,
+        NULL,
+        audio_device->defaultSampleRateKhz,
+        frames,
+        paClipOff,
+        audioCallback,
+        NULL
+    );
+
+    if (err != paNoError) {
+        printf("PortAudio open error: %s\n", Pa_GetErrorText(err));
+        Pa_Terminate();
+        return 1;
+    }
+
+    if ((err = Pa_StartStream(stream)) != paNoError) {
+        printf("PortAudio start error: %s\n", Pa_GetErrorText(err));
+        Pa_CloseStream(stream);
+        Pa_Terminate();
+        return 1;
+    }
+
+    printf("Listening... Press Enter to stop.\n");
+    getchar();
+    Pa_StopStream(stream);
+    Pa_CloseStream(stream);
+    Pa_Terminate();
+
+    return 0;
+}
+
+
 void get_host_api_info(const int index) {
     Pa_Initialize();
     const PaHostApiInfo *host_api = Pa_GetHostApiInfo(index);
@@ -45,9 +122,10 @@ void load_ultrasonic_devices(AvailableDevices *available_devices) {
             strncpy(dev.device_name, device_info->name, sizeof(dev.device_name));
             dev.maxInputChannels = device_info->maxInputChannels;
             dev.maxOutputChannels = device_info->maxOutputChannels;
-            dev.defaultSampleRateKhz = device_info->defaultSampleRate / 1000;
+            dev.defaultSampleRateKhz = device_info->defaultSampleRate;
             dev.device_id = i;
             available_devices->devices[available_devices->device_count++] = dev;
+            available_devices->device_ids[available_devices->device_count] = i;
         }
     }
     Pa_Terminate();
@@ -56,9 +134,11 @@ void load_ultrasonic_devices(AvailableDevices *available_devices) {
 void describe_available_ultrasonic_devices(AvailableDevices *available_devices) {
     printf("Found potential ultrasonic devices: %d \n", available_devices->device_count);
     for (int i = 0; i < available_devices->device_count; i++) {
-        printf("Device #%d: \n", available_devices->devices[i].device_id);
-        printf("Name %s\n", available_devices->devices[i].device_name);
-        printf("Sampling rate %.0f kHz\n", available_devices->devices[i].defaultSampleRateKhz);
+        printf("Device %d: \n", i);
+        printf("\tDevice ID: %d \n", available_devices->devices[i].device_id);
+        printf("\tName %s\n", available_devices->devices[i].device_name);
+        printf("\tSampling rate %.0f Hz\n", available_devices->devices[i].defaultSampleRateKhz);
+        printf("\tMax input channels %d\n", available_devices->devices[i].maxInputChannels);
         printf(DEVICE_INFO_SEPARATOR);
     }
 }

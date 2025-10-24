@@ -13,6 +13,7 @@ typedef struct {
 
 typedef struct {
     int device_count;
+    int device_ids[MAX_DEVICES];
     AudioDevice devices[MAX_DEVICES];
 } AvailableDevices;
 
@@ -20,3 +21,4 @@ void get_audio_devices();
 void load_ultrasonic_devices(AvailableDevices *available_devices);
 void get_host_api_info(int index);
 void describe_available_ultrasonic_devices(AvailableDevices *available_devices);
+int start_stream(int frames, const AudioDevice *audio_device);
