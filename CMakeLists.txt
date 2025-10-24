@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.36)
 project(Bat_Sonar_Listener C)
 
 set(CMAKE_C_STANDARD 17)
