@@ -4,17 +4,17 @@
 #define MAX_DEVICE_NAME 256
 
 typedef struct {
-    char device_name[MAX_DEVICE_NAME];
-    int device_id;
-    int maxInputChannels;
-    int maxOutputChannels;
-    double defaultSampleRateKhz;
+  char device_name[MAX_DEVICE_NAME];
+  int device_id;
+  int maxInputChannels;
+  int maxOutputChannels;
+  double defaultSampleRateKhz;
 } AudioDevice;
 
 typedef struct {
-    int device_count;
-    int device_ids[MAX_DEVICES];
-    AudioDevice devices[MAX_DEVICES];
+  int device_count;
+  int device_ids[MAX_DEVICES];
+  AudioDevice devices[MAX_DEVICES];
 } AvailableDevices;
 
 void get_audio_devices();

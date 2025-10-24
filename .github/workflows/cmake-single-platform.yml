@@ -14,6 +14,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install linters
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y cppcheck clang-tidy
+
+      - name: Run Cppcheck
+        run: |
+            cppcheck --enable=all --inconclusive --std=c17 \
+              --suppress=missingIncludeSystem .
+
+      - name: Run clang-tidy
+        run: |
+            clang-tidy $(find src -name '*.c') main.c -- -std=c17 -I/usr/include -I/usr/local/include
+
       - name: Build and install Paho MQTT C library
         run: |
           git clone https://github.com/eclipse/paho.mqtt.c.git
