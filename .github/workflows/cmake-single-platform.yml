@@ -14,12 +14,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Build and install Paho MQTT C library
+        run: |
+          git clone https://github.com/eclipse/paho.mqtt.c.git
+          cd paho.mqtt.c
+          cmake -B build -DPAHO_WITH_SSL=TRUE -DPAHO_ENABLE_TESTING=FALSE
+          cmake --build build --target install
+          sudo ldconfig
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake build-essential \
             libportaudio2 libportaudiocpp0 portaudio19-dev \
-            libssl-dev libpaho-mqtt3c-dev libcjson-dev
+            libssl-dev libcjson-dev
 
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
