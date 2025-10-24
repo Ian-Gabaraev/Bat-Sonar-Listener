@@ -35,5 +35,8 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      - name: Run executable (optional)
-        run: ./build/Bat_Sonar_Listener || true
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Bat_Sonar_Listener
+          path: build/Bat_Sonar_Listener
