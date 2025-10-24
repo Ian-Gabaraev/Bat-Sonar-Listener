@@ -41,7 +41,7 @@ int main(void) {
     load_ultrasonic_devices(&available_devices);
     describe_available_ultrasonic_devices(&available_devices);
     const int device_id = input_device_id(&available_devices);
-0    getchar();
+    getchar();
     start_stream(app_config.frames_per_buffer, &available_devices.devices[device_id]);
     return 0;
 }

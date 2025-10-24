@@ -42,10 +42,9 @@ int start_stream(const int frames, const AudioDevice *audio_device) {
     }
 
     PaStreamParameters inputParams;
-    const int channels = audio_device->maxInputChannels;
 
     inputParams.device = audio_device->device_id;
-    inputParams.channelCount = channels;
+    inputParams.channelCount = audio_device->maxInputChannels;
     inputParams.sampleFormat = paFloat32;
     inputParams.suggestedLatency =
         Pa_GetDeviceInfo(audio_device->device_id)->defaultLowInputLatency;
