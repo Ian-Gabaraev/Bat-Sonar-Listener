@@ -1,4 +1,4 @@
-# 🦇 Bat Sonar Listener
+# 🦇 Bat Sonar: Listener
 
 **Bat Sonar:Listener** is a C application that captures ultrasonic microphone data, performs lightweight acoustic
 analysis, and sends results as JSON to a remote monitor (Android app) over MQTT or AWS.  
