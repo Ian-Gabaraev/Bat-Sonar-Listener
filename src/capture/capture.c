@@ -22,7 +22,7 @@ static int audioCallback(const void *inputBuffer, void *outputBuffer,
 
   if (inputBuffer) {
     const int *in = inputBuffer;
-    for (unsigned i = 0; i < framesPerBuffer; i++)
+    for (unsigned i = 0; i <= framesPerBuffer; i++)
       write_to_buffer(userData, in[i]);
   }
   return paContinue;

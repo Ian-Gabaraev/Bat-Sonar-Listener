@@ -6,13 +6,14 @@
 #include "src/buffer/synchronous_single_buffer.h"
 #include "src/capture/capture.h"
 #include "src/config/config.h"
+#include "src/process/process.h"
 #include "src/utilities/utilities.h"
 
 AppConfig app_config;
 AvailableDevice available_devices;
 
 int input_device_id(const AvailableDevice* devices) {
-  char c;
+  int c;
   printf("\u25b6 Please enter device #: \n");
   while ((c = getchar()) != EOF && !isspace(c)) {
     const int n = c - '0';
@@ -28,7 +29,7 @@ SynchronousSingleBuffer buffer;
 
 int main(void) {
   suppress_alsa_errors();
-  int* storage = malloc(SYNCHRONOUS_SINGULAR_BUFFER_SIZE);
+  int* storage = malloc(SYNCHRONOUS_SINGULAR_BUFFER_SIZE * sizeof(int));
   buffer.storage = storage;
   init_buffer(&buffer, storage);
 
@@ -40,11 +41,14 @@ int main(void) {
   const int device_id = input_device_id(&available_devices);
   AudioDevice audio_device = available_devices.devices[device_id];
 
-  pthread_t read_thread;
-  // pthread_create(&gui_thread, NULL, (void *(*) (void *) ) run_gui, &gui_ctx);
+  pthread_t r_thread;
+  ReaderContext reader_context = {&buffer, SYNCHRONOUS_SINGULAR_BUFFER_SIZE};
+  pthread_create(&r_thread, NULL, (void* (*)(void*))reader_thread,
+                 &reader_context);
 
-  start_stream(app_config.frames_per_buffer, &audio_device, &buffer);
-  // pthread_join(gui_thread, NULL);
+  start_stream(SYNCHRONOUS_SINGULAR_BUFFER_SIZE, &audio_device, &buffer);
+  pthread_join(r_thread, NULL);
+
   free(storage);
   return 0;
 }

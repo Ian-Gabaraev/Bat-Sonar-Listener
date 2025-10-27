@@ -28,7 +28,7 @@ bool rewind_buffer(SynchronousSingleBuffer *buffer) {
 }
 
 bool buffer_full(const SynchronousSingleBuffer *buffer) {
-  return buffer->writing_at == SYNCHRONOUS_SINGULAR_BUFFER_SIZE - 1;
+  return buffer->writing_at == SYNCHRONOUS_SINGULAR_BUFFER_SIZE;
 };
 
 bool buffer_blocked(SynchronousSingleBuffer *buffer) {
@@ -36,7 +36,8 @@ bool buffer_blocked(SynchronousSingleBuffer *buffer) {
 };
 
 bool buffer_overwrite(SynchronousSingleBuffer *buffer) {
-  return !(buffer->write_count % SYNCHRONOUS_SINGULAR_BUFFER_SIZE);
+  return buffer->write_count > 0 &&
+         !(buffer->write_count % SYNCHRONOUS_SINGULAR_BUFFER_SIZE);
 };
 
 bool write_to_buffer(SynchronousSingleBuffer *buffer, const int value) {
@@ -45,9 +46,6 @@ bool write_to_buffer(SynchronousSingleBuffer *buffer, const int value) {
   }
   if (buffer_full(buffer) && !buffer_blocked(buffer)) {
     rewind_buffer(buffer);
-  }
-  if (buffer_overwrite(buffer)) {
-    printf("Overwrite\n");
   }
   buffer->storage[buffer->writing_at] = value;
   buffer->write_count++;
