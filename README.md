@@ -1,6 +1,6 @@
-# 🦇 Bat Sonar Listener
+# 🦇 Bat Sonar: Listener
 
-**Bat Sonar Listener** is a C application that captures ultrasonic microphone data, performs lightweight acoustic
+**Bat Sonar:Listener** is a C application that captures ultrasonic microphone data, performs lightweight acoustic
 analysis, and sends results as JSON to a remote monitor (Android app) over MQTT or AWS.  
 The goal: distributed bat sonar detection — your listening device can be anywhere, and your phone visualizes the data
 live.
