@@ -37,12 +37,8 @@ link_directories(
         /usr/local/lib
 )
 
-# --- Required packages ---
-find_package(raylib REQUIRED)
-
 # --- Link everything ---
 target_link_libraries(Bat_Sonar_Listener
-        raylib
         pthread
         portaudio
         paho-mqtt3c
@@ -50,6 +46,3 @@ target_link_libraries(Bat_Sonar_Listener
         ssl
         crypto
 )
-
-# --- Definitions ---
-target_compile_definitions(Bat_Sonar_Listener PRIVATE ENABLE_GUI)
