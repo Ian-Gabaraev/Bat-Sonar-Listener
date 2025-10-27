@@ -1,7 +1,5 @@
 #include "ring_buffer.h"
 
-#include <stdio.h>
-
 #define RING_BUFFER_SIZE 4096
 
 static size_t next_pos(const RingBuffer *rb, size_t pos) {
