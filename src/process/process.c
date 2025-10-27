@@ -4,21 +4,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-double get_rms(const int arr[], const int num_of_elements) {
-  double sum = 0;
+double get_rms(const int *arr, const int num_of_elements) {
+  int sum = 0;
 
   for (int i = 0; i < num_of_elements; i++) {
-    sum += pow(arr[i], 2);
+    sum += arr[i] * arr[i];
   }
 
-  const double mean_value = sum / num_of_elements;
+  const double mean_value = (double) sum / num_of_elements;
   const double rms = sqrt(mean_value);
 
   return rms;
 }
 
-double get_zcr(const int arr[], const int num_of_elements) {
-  double sum = 0;
+double get_zcr(const int *arr, const int num_of_elements) {
+  int sum = 0;
 
   for (int i = 1; i < num_of_elements; i++) {
     int sign_current, sign_previous;
@@ -34,7 +34,7 @@ double get_zcr(const int arr[], const int num_of_elements) {
     }
     sum += abs(sign_current - sign_previous);
   }
-  return sum / num_of_elements;
+  return (double) sum / num_of_elements;
 }
 
 void* reader_thread(const ReaderContext* rc) {
