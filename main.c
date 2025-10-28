@@ -39,7 +39,7 @@ int main(void) {
   describe_available_ultrasonic_devices(&available_devices);
 
   const int device_id = input_device_id(&available_devices);
-  (void) getchar();
+  (void)getchar();
   AudioDevice audio_device = available_devices.devices[device_id];
 
   pthread_t r_thread;

@@ -80,11 +80,12 @@ int start_stream(const int frames, AudioDevice *audio_device,
 
   printf("\u276F Listening... Press Enter to stop.\n");
   getchar();
-  rb->producer_online = false; // Indicate that the producer is offline
+  rb->producer_online = false;  // Indicate that the producer is offline
   Pa_StopStream(stream);
   Pa_CloseStream(stream);
   Pa_Terminate();
-  printf("\u2705 Recording session ended. Processed %d samples.\n", rb->write_count);
+  printf("\u2705 Recording session ended. Processed %d samples.\n",
+         rb->write_count);
 
   return 0;
 }

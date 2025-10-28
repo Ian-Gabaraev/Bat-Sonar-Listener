@@ -23,7 +23,7 @@ double get_rms(const int16_t *arr, const size_t num_of_elements) {
     sum += arr[i] * arr[i];
   }
 
-  const double mean_value = (double) sum / (double) num_of_elements;
+  const double mean_value = (double)sum / (double)num_of_elements;
   const double rms = sqrt(mean_value);
 
   return rms;
@@ -46,7 +46,7 @@ double get_zcr(const int16_t *arr, const size_t num_of_elements) {
     }
     sum += abs(sign_current - sign_previous);
   }
-  return (double) sum / (double) num_of_elements;
+  return (double)sum / (double)num_of_elements;
 }
 
 void *reader_thread(const ReaderContext *rc) {
