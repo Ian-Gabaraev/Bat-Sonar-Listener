@@ -45,7 +45,7 @@ void display_stream_settings(AudioDevice *audio_device, const int frames) {
   printf("Input channels: \033[4m%d\033[0m\n",
          audio_device->max_input_channels);
   printf("\u25b6 Press Enter to start \u21b5 \n");
-  getchar();
+  (void)getchar();
 }
 
 int start_stream(const int frames, AudioDevice *audio_device,
@@ -79,7 +79,7 @@ int start_stream(const int frames, AudioDevice *audio_device,
   }
 
   printf("\u276F Listening... Press Enter to stop.\n");
-  getchar();
+  (void)getchar();
   rb->producer_online = false;  // Indicate that the producer is offline
   Pa_StopStream(stream);
   Pa_CloseStream(stream);
