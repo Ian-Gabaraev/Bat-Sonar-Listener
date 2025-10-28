@@ -52,7 +52,7 @@ double get_zcr(const int16_t *arr, const size_t num_of_elements) {
 void *reader_thread(const ReaderContext *rc) {
   while (true) {
     if (rc->buffer->producer_online == false) {
-      printf("\u2705 Recording finished, exiting reader thread.\n");
+      printf("\u2705 Exiting reader thread.\n");
       break;
     }
     if (buffer_full(rc->buffer)) {

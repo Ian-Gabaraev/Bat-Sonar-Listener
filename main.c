@@ -29,7 +29,7 @@ SynchronousSingleBuffer buffer;
 
 int main(void) {
   suppress_alsa_errors();
-  int16_t* storage = malloc(SYNCHRONOUS_SINGULAR_BUFFER_SIZE * sizeof(int));
+  int16_t* storage = calloc(SYNCHRONOUS_SINGULAR_BUFFER_SIZE, sizeof(int16_t));
   buffer.storage = storage;
   init_buffer(&buffer, storage);
 
@@ -39,6 +39,7 @@ int main(void) {
   describe_available_ultrasonic_devices(&available_devices);
 
   const int device_id = input_device_id(&available_devices);
+  (void) getchar();
   AudioDevice audio_device = available_devices.devices[device_id];
 
   pthread_t r_thread;

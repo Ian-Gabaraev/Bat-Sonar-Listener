@@ -5,9 +5,9 @@
 #define SYNCHRONOUS_SINGULAR_BUFFER_SIZE 4096
 
 typedef struct {
-  int16_t write_count;
-  int16_t writing_at;
-  int16_t reading_at;
+  uint16_t write_count;
+  uint16_t writing_at;
+  uint16_t reading_at;
   int16_t *storage;
   bool producer_online;
 } SynchronousSingleBuffer;
