@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-bool init_buffer(SynchronousSingleBuffer *buffer, int *storage) {
+bool init_buffer(SynchronousSingleBuffer *buffer, int16_t *storage) {
   if (storage == NULL) {
     fprintf(stderr, "Buffer storage is NULL\n");
     return false;
@@ -12,6 +12,7 @@ bool init_buffer(SynchronousSingleBuffer *buffer, int *storage) {
   buffer->reading_at = 0;
   buffer->writing_at = 0;
   buffer->storage = storage;
+  buffer->producer_online = true;
 
   return true;
 };
@@ -40,7 +41,7 @@ bool buffer_overwrite(SynchronousSingleBuffer *buffer) {
          !(buffer->write_count % SYNCHRONOUS_SINGULAR_BUFFER_SIZE);
 };
 
-bool write_to_buffer(SynchronousSingleBuffer *buffer, const int value) {
+bool write_to_buffer(SynchronousSingleBuffer *buffer, const int16_t value) {
   if (buffer_full(buffer) && buffer_blocked(buffer)) {
     return false;
   }
@@ -54,11 +55,9 @@ bool write_to_buffer(SynchronousSingleBuffer *buffer, const int value) {
   return true;
 };
 
-int *read_from_buffer(SynchronousSingleBuffer *buffer) {
-  int *value = &buffer->storage[buffer->reading_at];
+int16_t *read_from_buffer(SynchronousSingleBuffer *buffer) {
+  int16_t *value = &buffer->storage[buffer->reading_at];
   buffer->reading_at++;
 
   return value;
 };
-
-void destroy_buffer(SynchronousSingleBuffer *buffer) { free(buffer->storage); };

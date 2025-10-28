@@ -80,9 +80,11 @@ int start_stream(const int frames, AudioDevice *audio_device,
 
   printf("Listening... Press Enter to stop.\n");
   getchar();
+  rb->producer_online = false; // Indicate that the producer is offline
   Pa_StopStream(stream);
   Pa_CloseStream(stream);
   Pa_Terminate();
+  printf("\u2705 Recording session ended.\n");
 
   return 0;
 }
@@ -140,12 +142,10 @@ void describe_available_ultrasonic_devices(AvailableDevice *available_devices) {
          available_devices->device_count);
   for (int i = 0; i < available_devices->device_count; i++) {
     printf("Device #%d: \n", i);
-    printf("\tDevice Index: \033[4m%d\033[0m \n",
-           available_devices->devices[i].device_index);
     printf("\tName: \033[4m%s\033[0m \n",
            available_devices->devices[i].device_name);
-    printf("\tSampling rate: \033[4m%.0f\033[0m Hz\n",
-           available_devices->devices[i].default_sample_rate_hz);
+    printf("\tSampling rate: \033[4m%.0f\033[0m kHz\n",
+           available_devices->devices[i].default_sample_rate_hz / 1000);
     printf("\tMax input channels: \033[4m%d\033[0m\n",
            available_devices->devices[i].max_input_channels);
     printf(DEVICE_INFO_SEPARATOR);

@@ -29,7 +29,7 @@ SynchronousSingleBuffer buffer;
 
 int main(void) {
   suppress_alsa_errors();
-  int* storage = malloc(SYNCHRONOUS_SINGULAR_BUFFER_SIZE * sizeof(int));
+  int16_t* storage = malloc(SYNCHRONOUS_SINGULAR_BUFFER_SIZE * sizeof(int));
   buffer.storage = storage;
   init_buffer(&buffer, storage);
 
