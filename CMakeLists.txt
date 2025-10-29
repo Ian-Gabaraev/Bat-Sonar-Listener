@@ -20,6 +20,10 @@ set(SRC_FILES
         src/buffer/synchronous_single_buffer.h
         src/process/process.c
         src/process/process.h
+        src/dsp/kiss_fft/kiss_fft.c
+        src/dsp/kiss_fft/kiss_fftr.c
+        src/dsp/kiss_fft/kiss_fft.h
+        src/dsp/kiss_fft/kiss_fftr.h
 )
 
 # --- Executable ---

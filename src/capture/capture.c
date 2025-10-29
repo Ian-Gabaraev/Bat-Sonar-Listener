@@ -55,6 +55,7 @@ int start_stream(const int frames, AudioDevice *audio_device,
   PaStream *stream = NULL;
 
   if ((err = Pa_Initialize()) != paNoError) {
+    rb->producer_online = false;
     printf("PortAudio init error: %s\n", Pa_GetErrorText(err));
     return 1;
   }
@@ -66,12 +67,14 @@ int start_stream(const int frames, AudioDevice *audio_device,
                       audioCallback, rb);
 
   if (err != paNoError) {
+    rb->producer_online = false;
     printf("PortAudio open error: %s\n", Pa_GetErrorText(err));
     Pa_Terminate();
     return 1;
   }
 
   if ((err = Pa_StartStream(stream)) != paNoError) {
+    rb->producer_online = false;
     printf("PortAudio start error: %s\n", Pa_GetErrorText(err));
     Pa_CloseStream(stream);
     Pa_Terminate();
