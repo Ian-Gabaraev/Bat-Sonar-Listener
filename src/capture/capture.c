@@ -6,8 +6,6 @@
 
 #include "../buffer/synchronous_single_buffer.h"
 
-#define RING_BUFFER_SIZE 4096
-
 #define ULTRASONIC_DEVICE_THRESHOLD_HZ 48000
 #define DEVICE_INFO_SEPARATOR "*****************************\n"
 
@@ -41,7 +39,9 @@ void set_up_input_params(PaStreamParameters *streamParameters,
 void display_stream_settings(AudioDevice *audio_device, const int frames) {
   printf("Starting capture from: \033[4m%s\033[0m\n",
          audio_device->device_name);
-  printf("Sample size: \033[4m%d\033[0m\n", frames);
+  printf("Frame size: \033[4m%d\033[0m samples\n", frames);
+  printf("Sampling rate: \033[4m%.0u\033[0m kHz\n",
+         audio_device->default_sample_rate_hz / 1000);
   printf("Input channels: \033[4m%d\033[0m\n",
          audio_device->max_input_channels);
   printf("\u25b6 Press Enter to start \u21b5 \n");
@@ -87,8 +87,13 @@ int start_stream(const int frames, AudioDevice *audio_device,
   Pa_StopStream(stream);
   Pa_CloseStream(stream);
   Pa_Terminate();
-  printf("\u2705 Recording session ended. Processed %d samples.\n",
-         rb->write_count);
+  printf(
+      "\u2705 Recording session ended. "
+      "Processed %lu samples. Duration %lu seconds. "
+      "Skipped %u samples (%.5f percent).\n",
+      rb->write_count, rb->write_count / audio_device->default_sample_rate_hz,
+      rb->skipped_samples_count,
+      (rb->skipped_samples_count / (double)rb->write_count) * 100.0);
 
   return 0;
 }
@@ -132,7 +137,7 @@ void load_ultrasonic_devices(AvailableDevice *available_devices) {
                device_info->name);
       dev.max_input_channels = device_info->maxInputChannels;
       dev.max_output_channels = device_info->maxOutputChannels;
-      dev.default_sample_rate_hz = device_info->defaultSampleRate;
+      dev.default_sample_rate_hz = (uint32_t)device_info->defaultSampleRate;
       dev.device_index = i;
       available_devices->devices[available_devices->device_count++] = dev;
       available_devices->device_ids[available_devices->device_count] = i;
@@ -148,7 +153,7 @@ void describe_available_ultrasonic_devices(AvailableDevice *available_devices) {
     printf("Device #%d: \n", i);
     printf("\tName: \033[4m%s\033[0m \n",
            available_devices->devices[i].device_name);
-    printf("\tSampling rate: \033[4m%.0f\033[0m kHz\n",
+    printf("\tSampling rate: \033[4m%.0u\033[0m kHz\n",
            available_devices->devices[i].default_sample_rate_hz / 1000);
     printf("\tMax input channels: \033[4m%d\033[0m\n",
            available_devices->devices[i].max_input_channels);

@@ -2,14 +2,15 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define SYNCHRONOUS_SINGULAR_BUFFER_SIZE 4096
+#define SYNCHRONOUS_SINGULAR_BUFFER_SIZE 128000
 
 typedef struct {
-  uint16_t write_count;
-  uint16_t writing_at;
-  uint16_t reading_at;
+  uint64_t write_count;
+  uint32_t writing_at;
+  uint32_t reading_at;
   int16_t *storage;
   bool producer_online;
+  uint32_t skipped_samples_count;
 } SynchronousSingleBuffer;
 
 bool init_buffer(SynchronousSingleBuffer *buffer, int16_t *storage);

@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-int in_array(const int *arr, const size_t len, const int value) {
+int in_array(const unsigned *arr, const size_t len, const int value) {
   for (size_t i = 0; i < len; i++) {
     if (arr[i] == value) return 1;
   }

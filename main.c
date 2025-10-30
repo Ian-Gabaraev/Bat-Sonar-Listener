@@ -43,7 +43,8 @@ int main(void) {
   AudioDevice audio_device = available_devices.devices[device_id];
 
   pthread_t r_thread;
-  ReaderContext reader_context = {&buffer, SYNCHRONOUS_SINGULAR_BUFFER_SIZE};
+  ReaderContext reader_context = {&buffer, SYNCHRONOUS_SINGULAR_BUFFER_SIZE,
+                                  audio_device.default_sample_rate_hz};
   pthread_create(&r_thread, NULL, (void* (*)(void*))reader_thread,
                  &reader_context);
 

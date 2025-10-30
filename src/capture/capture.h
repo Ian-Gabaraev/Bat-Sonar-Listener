@@ -7,15 +7,15 @@
 
 typedef struct {
   char device_name[MAX_DEVICE_NAME];
-  int device_index;
-  int max_input_channels;
-  int max_output_channels;
-  double default_sample_rate_hz;
+  unsigned device_index;
+  unsigned max_input_channels;
+  unsigned max_output_channels;
+  uint32_t default_sample_rate_hz;
 } AudioDevice;
 
 typedef struct {
-  int device_count;
-  int device_ids[MAX_DEVICES];
+  unsigned device_count;
+  unsigned device_ids[MAX_DEVICES];
   AudioDevice devices[MAX_DEVICES];
 } AvailableDevice;
 

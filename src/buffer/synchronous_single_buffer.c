@@ -11,6 +11,7 @@ bool init_buffer(SynchronousSingleBuffer *buffer, int16_t *storage) {
   buffer->write_count = 0;
   buffer->reading_at = 0;
   buffer->writing_at = 0;
+  buffer->skipped_samples_count = 0;
   buffer->storage = storage;
   buffer->producer_online = true;
 
@@ -43,6 +44,7 @@ bool buffer_overwrite(SynchronousSingleBuffer *buffer) {
 
 bool write_to_buffer(SynchronousSingleBuffer *buffer, const int16_t value) {
   if (buffer_full(buffer) && buffer_blocked(buffer)) {
+    buffer->skipped_samples_count++;
     return false;
   }
   if (buffer_full(buffer) && !buffer_blocked(buffer)) {

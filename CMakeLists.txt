@@ -49,6 +49,7 @@ target_link_libraries(Bat_Sonar_Listener
         cjson
         ssl
         crypto
+        m
 )
 
 # --- Definitions ---
