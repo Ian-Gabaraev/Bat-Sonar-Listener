@@ -27,7 +27,12 @@ int input_device_id(const AvailableDevice* devices) {
 
 SynchronousSingleBuffer buffer;
 
-int main(void) {
+int main(const int argc, char *argv[]) {
+  if (argc > 1) {
+    const char *mqtt_topic = argv[2];
+    const char *certs_path = argv[3];
+    printf("MQTT Topic %s\n", mqtt_topic);
+  }
   suppress_alsa_errors();
   int16_t* storage = calloc(SYNCHRONOUS_SINGULAR_BUFFER_SIZE, sizeof(int16_t));
   buffer.storage = storage;

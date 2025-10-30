@@ -56,3 +56,9 @@ dkms.conf
 
 # IDE
 .idea/
+
+# Security
+*.key
+*.crt
+*.csr
+*.pem
