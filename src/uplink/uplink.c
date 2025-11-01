@@ -4,40 +4,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
-#include <uuid/uuid.h>
 
 #define QOS 1
 #define TIMEOUT_MS 10000L
 
 #include <openssl/err.h>
-#include <openssl/ssl.h>
 
 static MQTTClient client;
-
-void test_tls_handshake(const char *host, const char *port, const char *ca, const char *cert, const char *key) {
-    SSL_library_init();
-    SSL_CTX *ctx = SSL_CTX_new(TLS_client_method());
-    SSL_CTX_set_min_proto_version(ctx, TLS1_2_VERSION);
-    if (!SSL_CTX_load_verify_locations(ctx, ca, NULL))
-        perror("CA load fail");
-    if (SSL_CTX_use_certificate_file(ctx, cert, SSL_FILETYPE_PEM) <= 0)
-        perror("Cert load fail");
-    if (SSL_CTX_use_PrivateKey_file(ctx, key, SSL_FILETYPE_PEM) <= 0)
-        perror("Key load fail");
-
-    BIO *bio;
-    char target[256];
-    snprintf(target, sizeof(target), "%s:%s", host, port);
-    bio = BIO_new_ssl_connect(ctx);
-    BIO_set_conn_hostname(bio, target);
-    if (BIO_do_connect(bio) <= 0)
-        ERR_print_errors_fp(stderr);
-    else
-        printf("TLS connect OK ✅\n");
-
-    BIO_free_all(bio);
-    SSL_CTX_free(ctx);
-}
 
 void init_config(const char *mqtt_topic, const char *certs_path, const char *aws_endpoint, MQTTConfig *mqtt_config) {
     snprintf(mqtt_config->aws_endpoint, sizeof(mqtt_config->aws_endpoint), "ssl://%s:8883", aws_endpoint);
