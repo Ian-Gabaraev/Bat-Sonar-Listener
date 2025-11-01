@@ -24,6 +24,8 @@ set(SRC_FILES
         src/dsp/kiss_fft/kiss_fftr.c
         src/dsp/kiss_fft/kiss_fft.h
         src/dsp/kiss_fft/kiss_fftr.h
+        src/uplink/uplink.c
+        src/uplink/uplink.h
 )
 
 # --- Executable ---
@@ -45,7 +47,7 @@ link_directories(
 target_link_libraries(Bat_Sonar_Listener
         pthread
         portaudio
-        paho-mqtt3c
+        paho-mqtt3cs
         cjson
         ssl
         crypto

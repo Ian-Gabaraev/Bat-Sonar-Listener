@@ -115,7 +115,7 @@ void process(const ReaderContext *rc, struct timespec *start,
   clock_gettime(CLOCK_MONOTONIC, end);
   double elapsed = (double)(end->tv_sec - start->tv_sec);
   elapsed += (double)(end->tv_nsec - start->tv_nsec) / 1.0e6;
-  // printf("\u2705 Reader thread elapsed: %.1lf ms\n", elapsed);
+  printf("\u2705 Reader thread elapsed: %.1lf ms\n", elapsed);
 }
 
 void *reader_thread(const ReaderContext *rc) {
