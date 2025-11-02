@@ -5,16 +5,16 @@
 #include "../buffer/synchronous_single_buffer.h"
 
 typedef struct {
-    SynchronousSingleBuffer *buffer;
-    unsigned buffer_size;
-    uint32_t sampling_rate_hz;
+  SynchronousSingleBuffer *buffer;
+  unsigned buffer_size;
+  uint32_t sampling_rate_hz;
 } ReaderContext;
 
 typedef struct {
-    double rms; // Root-median square
-    double zcr; // Zero-crossing rate
-    int amp_max; // Absolute maximum
-    float dominant_freq; // Dominant frequency in Hz
+  double rms;           // Root-median square
+  double zcr;           // Zero-crossing rate
+  int amp_max;          // Absolute maximum
+  float dominant_freq;  // Dominant frequency in Hz
 } AudioFeatures;
 
 void *reader_thread(const ReaderContext *rc);

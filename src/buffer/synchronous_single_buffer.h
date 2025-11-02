@@ -5,12 +5,12 @@
 #define SYNCHRONOUS_SINGULAR_BUFFER_SIZE 128000
 
 typedef struct {
-    uint64_t write_count;
-    uint32_t writing_at;
-    uint32_t reading_at;
-    int16_t *storage;
-    bool producer_online;
-    uint32_t skipped_samples_count;
+  uint64_t write_count;
+  uint32_t writing_at;
+  uint32_t reading_at;
+  int16_t *storage;
+  bool producer_online;
+  uint32_t skipped_samples_count;
 } SynchronousSingleBuffer;
 
 void destroy_buffer(SynchronousSingleBuffer *buffer);
