@@ -5,7 +5,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#define QOS 1
+#define QOS 0
 #define TIMEOUT_MS 10000L
 
 #include <openssl/err.h>
@@ -83,6 +83,7 @@ unsigned init_client(const MQTTConfig *mqtt_config) {
         MQTTClient_destroy(client);
         return 2;
     }
+    fprintf(stdout, "Connected to AWS IoT Core at %s\n", mqtt_config->aws_endpoint);
     return 1;
 }
 
