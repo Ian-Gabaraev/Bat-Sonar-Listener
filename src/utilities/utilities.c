@@ -83,14 +83,14 @@ void help() {
   printf("\033[1;36m========================================\033[0m\n\n");
 };
 
-void set_hostname(const SystemSummary *_s) {
+void set_hostname(SystemSummary *_s) {
   char name[256];
   if (gethostname(name, sizeof(name)) == 0) {
     strncpy(_s->hostname, name, sizeof(name) - 1);
   }
 }
 
-void set_cpu_model(const SystemSummary *_s) {
+void set_cpu_model(SystemSummary *_s) {
   FILE *f = fopen("/proc/cpuinfo", "r");
   char line[256];
   if (!f) return;
