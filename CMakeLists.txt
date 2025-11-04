@@ -26,6 +26,9 @@ set(SRC_FILES
         src/dsp/kiss_fft/kiss_fftr.h
         src/uplink/uplink.c
         src/uplink/uplink.h
+        include/buffer.h
+        include/audio.h
+        include/system.h
 )
 
 # --- Executable ---
