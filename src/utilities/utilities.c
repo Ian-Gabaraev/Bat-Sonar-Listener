@@ -65,7 +65,7 @@ void help() {
            "setups.\n\n");
 
     printf("\033[1;36m========================================\033[0m\n");
-    printf("  Created by Ian — 2025\n");
+    printf("  Created by Ian Gabaraev — 2025\n");
     printf("  Part of the Bat Sonar Suite Project\n");
     printf("\033[1;36m========================================\033[0m\n\n");
 };

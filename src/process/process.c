@@ -82,17 +82,9 @@ double get_zcr(const int16_t *arr, const size_t num_of_elements) {
     int32_t sum = 0;
 
     for (int i = 1; i < num_of_elements; i++) {
-        int sign_current, sign_previous;
-        if (arr[i] >= 0) {
-            sign_current = 1;
-        } else {
-            sign_current = -1;
-        }
-        if (arr[i - 1] >= 0) {
-            sign_previous = 1;
-        } else {
-            sign_previous = -1;
-        }
+        const int sign_current = arr[i] >= 0 ? 1 : -1;
+        const int sign_previous = arr[i - 1] >= 0 ? 1 : -1;
+
         sum += abs(sign_current - sign_previous);
     }
     return (double) sum / (double) num_of_elements;

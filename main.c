@@ -16,8 +16,10 @@ bool AUTO = false;
 
 AppConfig app_config;
 AvailableDevice available_devices;
+SynchronousSingleBuffer buffer;
+int16_t storage[SYNCHRONOUS_SINGULAR_BUFFER_SIZE] = {0};
 
-int input_device_id(const AvailableDevice *devices) {
+static int input_device_id(const AvailableDevice *devices) {
     int c;
     printf("\u25b6 Please enter device #: \n");
     while ((c = getchar()) != EOF && !isspace(c)) {
@@ -27,7 +29,7 @@ int input_device_id(const AvailableDevice *devices) {
         }
     }
     printf("Not found. Using default # 0\n");
-    return 0;
+    exit(EXIT_FAILURE);
 }
 
 void send_connected_message(MQTTConfig *mqtt_config) {
@@ -42,29 +44,32 @@ void send_connected_message(MQTTConfig *mqtt_config) {
     send_message(mqtt_config, payload);
 }
 
-SynchronousSingleBuffer buffer;
-int16_t storage[SYNCHRONOUS_SINGULAR_BUFFER_SIZE] = {0};
-
 int main(const int argc, char *argv[]) {
+    const char *device_idx = NULL;
     if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
         help();
-        return 0;
+        exit(EXIT_SUCCESS);
     }
     if (argc <= 1) {
-        printf("Args missing");
-        return 0;
+        fprintf(stderr, "Missing arguments \n");
+        exit(EXIT_FAILURE);
     }
+    if (argc == 6) {
+        device_idx = argv[5] - '0';
+    }
+    AUTO = device_idx ? true : false;
+
     const char *mqtt_topic = argv[2];
     const char *certs_path = argv[3];
     const char *aws_endpoint = argv[4];
-    const char *device_idx = argv[5] - '0';
-    AUTO = device_idx ? true : false;
+
     MQTTConfig mqtt_config;
     init_config(mqtt_topic, certs_path, aws_endpoint, &mqtt_config);
     init_client(&mqtt_config);
     send_connected_message(&mqtt_config);
 
     suppress_alsa_errors();
+
     buffer.storage = storage;
     init_buffer(&buffer, storage);
 

@@ -2,6 +2,7 @@
 
 #include <portaudio.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "../buffer/synchronous_single_buffer.h"
@@ -21,16 +22,16 @@ static int audioCallback(const void *inputBuffer, void *outputBuffer, unsigned l
     if (inputBuffer) {
         const int *in = inputBuffer;
         for (unsigned i = 0; i <= framesPerBuffer; i++)
-            write_to_buffer(userData, in[i]);
+            write_to_buffer(userData, (int16_t) in[i]);
     }
     return paContinue;
 }
 
 void set_up_input_params(PaStreamParameters *streamParameters, const AudioDevice *audio_device) {
-    streamParameters->device = audio_device->device_index;
-    streamParameters->channelCount = audio_device->max_input_channels;
+    streamParameters->device = (int) audio_device->device_index;
+    streamParameters->channelCount = (int) audio_device->max_input_channels;
     streamParameters->sampleFormat = paInt16;
-    streamParameters->suggestedLatency = Pa_GetDeviceInfo(audio_device->device_index)->defaultLowInputLatency;
+    streamParameters->suggestedLatency = Pa_GetDeviceInfo((int) audio_device->device_index)->defaultLowInputLatency;
     streamParameters->hostApiSpecificStreamInfo = NULL;
 }
 
@@ -52,8 +53,8 @@ int start_stream(const int frames, AudioDevice *audio_device, SynchronousSingleB
 
     if ((err = Pa_Initialize()) != paNoError) {
         rb->producer_online = false;
-        printf("PortAudio init error: %s\n", Pa_GetErrorText(err));
-        return 1;
+        fprintf(stderr, "PortAudio initialization error: %s\n", Pa_GetErrorText(err));
+        return 0;
     }
 
     PaStreamParameters inputParams;
@@ -63,17 +64,17 @@ int start_stream(const int frames, AudioDevice *audio_device, SynchronousSingleB
 
     if (err != paNoError) {
         rb->producer_online = false;
-        printf("PortAudio open error: %s\n", Pa_GetErrorText(err));
+        fprintf(stderr, "PortAudio opening stream error: %s\n", Pa_GetErrorText(err));
         Pa_Terminate();
-        return 1;
+        return 0;
     }
 
     if ((err = Pa_StartStream(stream)) != paNoError) {
         rb->producer_online = false;
-        printf("PortAudio start error: %s\n", Pa_GetErrorText(err));
+        fprintf(stderr, "PortAudio starting stream error: %s\n", Pa_GetErrorText(err));
         Pa_CloseStream(stream);
         Pa_Terminate();
-        return 1;
+        return 0;
     }
 
     printf("\u276F Listening... Press Enter to stop.\n");
@@ -88,7 +89,7 @@ int start_stream(const int frames, AudioDevice *audio_device, SynchronousSingleB
            rb->write_count, rb->write_count / audio_device->default_sample_rate_hz, rb->skipped_samples_count,
            (rb->skipped_samples_count / (double) rb->write_count) * 100.0);
 
-    return 0;
+    return 1;
 }
 
 void get_host_api_info(const int index) {

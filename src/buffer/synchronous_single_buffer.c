@@ -6,7 +6,7 @@
 bool init_buffer(SynchronousSingleBuffer *buffer, int16_t *storage) {
     if (storage == NULL) {
         fprintf(stderr, "Buffer storage is NULL\n");
-        return false;
+        exit(EXIT_FAILURE);
     }
     buffer->write_count = 0;
     buffer->reading_at = 0;
