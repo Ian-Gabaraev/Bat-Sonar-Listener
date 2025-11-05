@@ -35,7 +35,7 @@ void set_up_input_params(PaStreamParameters *streamParameters, const AudioDevice
     streamParameters->hostApiSpecificStreamInfo = NULL;
 }
 
-void display_stream_settings(AudioDevice *audio_device, const int frames) {
+void display_stream_settings(AudioDevice *audio_device, const uint32_t frames) {
     printf("Starting capture from: \033[4m%s\033[0m\n", audio_device->device_name);
     printf("Frame size: \033[4m%d\033[0m samples\n", frames);
     printf("Sampling rate: \033[4m%.0u\033[0m kHz\n", audio_device->default_sample_rate_hz / 1000);
@@ -46,7 +46,7 @@ void display_stream_settings(AudioDevice *audio_device, const int frames) {
     }
 }
 
-int start_stream(const int frames, AudioDevice *audio_device, SynchronousSingleBuffer *rb) {
+int start_stream(const uint32_t frames, AudioDevice *audio_device, SynchronousSingleBuffer *rb) {
     display_stream_settings(audio_device, frames);
     PaError err;
     PaStream *stream = NULL;

@@ -1,7 +1,11 @@
-#include "synchronous_single_buffer.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+
+#include "../../include/buffer.h"
+
+extern uint32_t BUFFER_SIZE;
+extern bool DEBUG;
 
 bool init_buffer(SynchronousSingleBuffer *buffer, int16_t *storage) {
     if (storage == NULL) {
@@ -15,6 +19,11 @@ bool init_buffer(SynchronousSingleBuffer *buffer, int16_t *storage) {
     buffer->storage = storage;
     buffer->producer_online = true;
 
+    if (DEBUG) {
+        const time_t now = time(NULL);
+        fprintf(stdout, "[INFO @ %ld] Buffer initialized with size: %d\n", now, BUFFER_SIZE);
+    }
+
     return true;
 };
 
@@ -27,16 +36,14 @@ bool rewind_buffer(SynchronousSingleBuffer *buffer) {
     return true;
 }
 
-bool buffer_full(const SynchronousSingleBuffer *buffer) {
-    return buffer->writing_at == SYNCHRONOUS_SINGULAR_BUFFER_SIZE;
-};
+bool buffer_full(const SynchronousSingleBuffer *buffer) { return buffer->writing_at == BUFFER_SIZE; };
 
 bool buffer_blocked(SynchronousSingleBuffer *buffer) {
     return buffer_full(buffer) && buffer->reading_at != buffer->writing_at;
 };
 
 bool buffer_overwrite(SynchronousSingleBuffer *buffer) {
-    return buffer->write_count > 0 && !(buffer->write_count % SYNCHRONOUS_SINGULAR_BUFFER_SIZE);
+    return buffer->write_count > 0 && !(buffer->write_count % BUFFER_SIZE);
 };
 
 bool write_to_buffer(SynchronousSingleBuffer *buffer, const int16_t value) {

@@ -6,18 +6,17 @@
 
 #include "src/buffer/synchronous_single_buffer.h"
 #include "src/capture/capture.h"
-#include "src/config/config.h"
 #include "src/process/process.h"
 #include "src/uplink/uplink.h"
 #include "src/utilities/utilities.h"
 
 bool DEBUG = true;
 bool AUTO = false;
+uint32_t BUFFER_SIZE;
 
 AppConfig app_config;
 AvailableDevice available_devices;
 SynchronousSingleBuffer buffer;
-int16_t storage[SYNCHRONOUS_SINGULAR_BUFFER_SIZE] = {0};
 
 static int input_device_id(const AvailableDevice *devices) {
     int c;
@@ -45,7 +44,7 @@ void send_connected_message(MQTTConfig *mqtt_config) {
 }
 
 int main(const int argc, char *argv[]) {
-    const char *device_idx = NULL;
+    int device_idx = -1;
     if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
         help();
         exit(EXIT_SUCCESS);
@@ -54,31 +53,34 @@ int main(const int argc, char *argv[]) {
         fprintf(stderr, "Missing arguments \n");
         exit(EXIT_FAILURE);
     }
-    if (argc == 6) {
-        device_idx = argv[5] - '0';
+    if (argc == 7) {
+        device_idx = (int) strtol(argv[6], NULL, 10);
+        ;
     }
-    AUTO = device_idx ? true : false;
+    AUTO = device_idx >= 0 ? true : false;
 
     const char *mqtt_topic = argv[2];
     const char *certs_path = argv[3];
     const char *aws_endpoint = argv[4];
 
-    MQTTConfig mqtt_config;
-    init_config(mqtt_topic, certs_path, aws_endpoint, &mqtt_config);
-    init_client(&mqtt_config);
-    send_connected_message(&mqtt_config);
+    BUFFER_SIZE = (uint32_t) strtoul(argv[5], NULL, 10);
+
+    // MQTTConfig mqtt_config;
+    // init_config(mqtt_topic, certs_path, aws_endpoint, &mqtt_config);
+    // init_client(&mqtt_config);
+    // send_connected_message(&mqtt_config);
 
     suppress_alsa_errors();
 
-    buffer.storage = storage;
+    int16_t *storage = calloc(BUFFER_SIZE, sizeof(int16_t));
     init_buffer(&buffer, storage);
 
     load_ultrasonic_devices(&available_devices);
     describe_available_ultrasonic_devices(&available_devices);
     AudioDevice audio_device;
 
-    if (device_idx) {
-        audio_device = available_devices.devices[*device_idx];
+    if (device_idx >= 0) {
+        audio_device = available_devices.devices[device_idx];
     } else {
         const int device_id = input_device_id(&available_devices);
         (void) getchar();
@@ -86,10 +88,10 @@ int main(const int argc, char *argv[]) {
     }
 
     pthread_t r_thread;
-    ReaderContext reader_context = {&buffer, SYNCHRONOUS_SINGULAR_BUFFER_SIZE, audio_device.default_sample_rate_hz};
+    ReaderContext reader_context = {&buffer, BUFFER_SIZE, audio_device.default_sample_rate_hz};
     pthread_create(&r_thread, NULL, (void *(*) (void *) ) reader_thread, &reader_context);
 
-    start_stream(SYNCHRONOUS_SINGULAR_BUFFER_SIZE, &audio_device, &buffer);
+    start_stream(BUFFER_SIZE, &audio_device, &buffer);
     pthread_join(r_thread, NULL);
 
     cleanup();

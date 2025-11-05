@@ -2,13 +2,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef struct {
-    float *data;
-    size_t size;
-    size_t read_index;
-    size_t write_index;
-    size_t write_count;
-} RingBuffer;
+#include "../../include/buffer.h"
 
 void ring_buffer_init(RingBuffer *rb, float *storage, size_t size);
 bool ring_buffer_push(RingBuffer *rb, float sample);

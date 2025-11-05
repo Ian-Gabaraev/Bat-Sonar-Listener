@@ -5,7 +5,10 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "../buffer/synchronous_single_buffer.h"
 #include "../dsp/kiss_fft/kiss_fftr.h"
+
+extern uint32_t BUFFER_SIZE;
 
 float get_dominant_freq(const ReaderContext *rc, const size_t num_of_elements) {
     float array[num_of_elements];
@@ -92,10 +95,10 @@ double get_zcr(const int16_t *arr, const size_t num_of_elements) {
 
 void process(const ReaderContext *rc, struct timespec *start, struct timespec *end) {
     clock_gettime(CLOCK_MONOTONIC, start);
-    const double rms = get_rms(rc->buffer->storage, SYNCHRONOUS_SINGULAR_BUFFER_SIZE);
-    const double zcr = get_zcr(rc->buffer->storage, SYNCHRONOUS_SINGULAR_BUFFER_SIZE);
-    const int amp_max = get_amp_max(rc->buffer->storage, SYNCHRONOUS_SINGULAR_BUFFER_SIZE);
-    const float dom_freq = get_dominant_freq(rc, SYNCHRONOUS_SINGULAR_BUFFER_SIZE);
+    const double rms = get_rms(rc->buffer->storage, BUFFER_SIZE);
+    const double zcr = get_zcr(rc->buffer->storage, BUFFER_SIZE);
+    const int amp_max = get_amp_max(rc->buffer->storage, BUFFER_SIZE);
+    const float dom_freq = get_dominant_freq(rc, BUFFER_SIZE);
     // AudioFeatures audio_features = {rms, zcr, amp_max, dom_freq};
 
     clock_gettime(CLOCK_MONOTONIC, end);
