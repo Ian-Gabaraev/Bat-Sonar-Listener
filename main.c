@@ -66,40 +66,44 @@ int main(const int argc, char *argv[]) {
         fprintf(stderr, "Missing arguments \n");
         exit(EXIT_FAILURE);
     }
-    if (argc == 7) {
-        device_idx = (int) strtol(argv[6], NULL, 10); // convert str to long
+
+    if (argc >= 5) {
+        BUFFER_SIZE = (uint32_t) strtoul(argv[5], NULL, 10); // convert str to unsigned long
     }
-    if (argc == 8) {
+    if (argc >= 6) {
+        device_idx = (int) strtol(argv[6], NULL, 10); // convert str to long
+        AUTO = device_idx >= 0 ? true : false;
+    }
+    if (argc >= 7) {
         const uint16_t requested_duration = (uint16_t) strtoul(argv[7], NULL, 10);
-        if (requested_duration >= MAX_DURATION_SECONDS-1) {
-            fprintf(stderr, "Duration exceeds limit %u", MAX_DURATION_SECONDS-1);
+        if (requested_duration >= MAX_DURATION_SECONDS - 1) {
+            fprintf(stderr, "Duration exceeds limit %u", MAX_DURATION_SECONDS - 1);
             TIMER = true;
-        }
-        else {
+        } else {
             TIMER = true;
             RECORDING_DURATION_SECONDS = requested_duration;
         }
     }
-    AUTO = device_idx >= 0 ? true : false;
 
     const char *mqtt_topic = argv[2];
     const char *certs_path = argv[3];
     const char *aws_endpoint = argv[4];
-
-    BUFFER_SIZE = (uint32_t) strtoul(argv[5], NULL, 10); // convert str to unsigned long
 
     // MQTTConfig mqtt_config;
     // init_config(mqtt_topic, certs_path, aws_endpoint, &mqtt_config);
     // init_client(&mqtt_config);
     // send_connected_message(&mqtt_config);
 
-    int16_t *p_storage = calloc(BUFFER_SIZE, sizeof(int16_t)); // allocate buffer, initialized to 0
+    int16_t *p_storage = calloc(BUFFER_SIZE, sizeof(int16_t));
     init_psb(&psb, p_storage); // initialize processing sync buffer
 
     AudioFeatures *f_storage = calloc(BUFFER_SIZE, sizeof(AudioFeatures));
+    init_fsb(&fsb, f_storage); // initialize features sync buffer
 
     load_ultrasonic_devices(&available_devices);
-    describe_available_ultrasonic_devices(&available_devices);
+    if (!AUTO) {
+        describe_available_ultrasonic_devices(&available_devices);
+    }
     AudioDevice audio_device;
 
     if (device_idx >= 0) {

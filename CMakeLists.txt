@@ -14,7 +14,8 @@ set(SRC_FILES
         src/config/config.h
         src/utilities/utilities.c
         src/utilities/utilities.h
-        src/buffer/ssb_processing.c
+        src/buffer/fsb_processing.c
+        src/buffer/psb_processing.c
         src/process/process.c
         src/process/process.h
         src/dsp/kiss_fft/kiss_fft.c
@@ -28,6 +29,7 @@ set(SRC_FILES
         include/system.h
         include/reader.h
         include/config.h
+        src/buffer/fsb_processing.c
 )
 
 # --- Executable ---

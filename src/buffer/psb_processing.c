@@ -6,6 +6,7 @@
 
 extern uint32_t BUFFER_SIZE;
 extern bool DEBUG;
+extern uint16_t RECORDING_DURATION_SECONDS;
 
 bool init_psb(ProcessingSyncBuffer *buffer, int16_t *storage) {
     if (storage == NULL) {
@@ -21,7 +22,8 @@ bool init_psb(ProcessingSyncBuffer *buffer, int16_t *storage) {
 
     if (DEBUG) {
         const time_t now = time(NULL);
-        fprintf(stdout, "[INFO @ %ld] Buffer initialized with size: %d\n", now, BUFFER_SIZE);
+        fprintf(stdout, "\033[0;32m[INFO @ %ld] Processing buffer initialized with size: %d\n", now, BUFFER_SIZE);
+        fprintf(stdout, "[INFO @ %ld] Mode: AUTO. Listening for %d seconds\n", now, RECORDING_DURATION_SECONDS);
     }
 
     return true;
@@ -38,9 +40,7 @@ bool rewind_psb(ProcessingSyncBuffer *buffer) {
 
 bool psb_full(const ProcessingSyncBuffer *buffer) { return buffer->writing_at == BUFFER_SIZE; };
 
-bool psb_blocked(ProcessingSyncBuffer *buffer) {
-    return psb_full(buffer) && buffer->reading_at != buffer->writing_at;
-};
+bool psb_blocked(ProcessingSyncBuffer *buffer) { return psb_full(buffer) && buffer->reading_at != buffer->writing_at; };
 
 bool psb_overwrite(ProcessingSyncBuffer *buffer) {
     return buffer->write_count > 0 && !(buffer->write_count % BUFFER_SIZE);
