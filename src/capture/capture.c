@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../buffer/synchronous_single_buffer.h"
+#include "../../include/buffer.h"
 
 #define ULTRASONIC_DEVICE_THRESHOLD_HZ 48000
 #define DEVICE_INFO_SEPARATOR "*****************************\n"
@@ -22,7 +22,7 @@ static int audioCallback(const void *inputBuffer, void *outputBuffer, unsigned l
     if (inputBuffer) {
         const int *in = inputBuffer;
         for (unsigned i = 0; i <= framesPerBuffer; i++)
-            write_to_buffer(userData, (int16_t) in[i]);
+            write_to_psb(userData, (int16_t) in[i]);
     }
     return paContinue;
 }
@@ -46,7 +46,7 @@ void display_stream_settings(AudioDevice *audio_device, const uint32_t frames) {
     }
 }
 
-int start_stream(const uint32_t frames, AudioDevice *audio_device, SynchronousSingleBuffer *rb) {
+int start_stream(const uint32_t frames, AudioDevice *audio_device, ProcessingSyncBuffer *rb) {
     display_stream_settings(audio_device, frames);
     PaError err;
     PaStream *stream = NULL;

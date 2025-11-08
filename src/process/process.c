@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../buffer/synchronous_single_buffer.h"
+#include "../../include/buffer.h"
 #include "../dsp/kiss_fft/kiss_fftr.h"
 
 extern uint32_t BUFFER_SIZE;
@@ -114,9 +114,9 @@ void *reader_thread(const ReaderContext *rc) {
             printf("\u2705 Exiting reader thread.\n");
             break;
         }
-        if (buffer_full(rc->buffer)) {
+        if (psb_full(rc->buffer)) {
             process(rc, &start, &end);
-            rewind_buffer(rc->buffer);
+            rewind_psb(rc->buffer);
         }
     }
     return 0;

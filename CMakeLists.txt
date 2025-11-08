@@ -12,12 +12,9 @@ set(SRC_FILES
         src/capture/capture.h
         src/config/config.c
         src/config/config.h
-        src/buffer/ring_buffer.c
-        src/buffer/ring_buffer.h
         src/utilities/utilities.c
         src/utilities/utilities.h
-        src/buffer/synchronous_single_buffer.c
-        src/buffer/synchronous_single_buffer.h
+        src/buffer/ssb_processing.c
         src/process/process.c
         src/process/process.h
         src/dsp/kiss_fft/kiss_fft.c

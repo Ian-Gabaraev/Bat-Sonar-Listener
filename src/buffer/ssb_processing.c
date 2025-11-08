@@ -7,7 +7,7 @@
 extern uint32_t BUFFER_SIZE;
 extern bool DEBUG;
 
-bool init_buffer(SynchronousSingleBuffer *buffer, int16_t *storage) {
+bool init_psb(ProcessingSyncBuffer *buffer, int16_t *storage) {
     if (storage == NULL) {
         fprintf(stderr, "Buffer storage is NULL\n");
         exit(EXIT_FAILURE);
@@ -27,32 +27,32 @@ bool init_buffer(SynchronousSingleBuffer *buffer, int16_t *storage) {
     return true;
 };
 
-bool buffer_empty(const SynchronousSingleBuffer *buffer) { return buffer->write_count == 0; }
+bool psb_empty(const ProcessingSyncBuffer *buffer) { return buffer->write_count == 0; }
 
-bool rewind_buffer(SynchronousSingleBuffer *buffer) {
+bool rewind_psb(ProcessingSyncBuffer *buffer) {
     buffer->reading_at = 0;
     buffer->writing_at = 0;
 
     return true;
 }
 
-bool buffer_full(const SynchronousSingleBuffer *buffer) { return buffer->writing_at == BUFFER_SIZE; };
+bool psb_full(const ProcessingSyncBuffer *buffer) { return buffer->writing_at == BUFFER_SIZE; };
 
-bool buffer_blocked(SynchronousSingleBuffer *buffer) {
-    return buffer_full(buffer) && buffer->reading_at != buffer->writing_at;
+bool psb_blocked(ProcessingSyncBuffer *buffer) {
+    return psb_full(buffer) && buffer->reading_at != buffer->writing_at;
 };
 
-bool buffer_overwrite(SynchronousSingleBuffer *buffer) {
+bool psb_overwrite(ProcessingSyncBuffer *buffer) {
     return buffer->write_count > 0 && !(buffer->write_count % BUFFER_SIZE);
 };
 
-bool write_to_buffer(SynchronousSingleBuffer *buffer, const int16_t value) {
-    if (buffer_full(buffer) && buffer_blocked(buffer)) {
+bool write_to_psb(ProcessingSyncBuffer *buffer, const int16_t value) {
+    if (psb_full(buffer) && psb_blocked(buffer)) {
         buffer->skipped_samples_count++;
         return false;
     }
-    if (buffer_full(buffer) && !buffer_blocked(buffer)) {
-        rewind_buffer(buffer);
+    if (psb_full(buffer) && !psb_blocked(buffer)) {
+        rewind_psb(buffer);
     }
     buffer->storage[buffer->writing_at] = value;
     buffer->write_count++;
@@ -61,7 +61,7 @@ bool write_to_buffer(SynchronousSingleBuffer *buffer, const int16_t value) {
     return true;
 };
 
-int16_t *read_from_buffer(SynchronousSingleBuffer *buffer) {
+int16_t *read_from_psb(ProcessingSyncBuffer *buffer) {
     int16_t *value = &buffer->storage[buffer->reading_at];
     buffer->reading_at++;
 
