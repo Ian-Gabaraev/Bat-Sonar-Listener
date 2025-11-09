@@ -103,8 +103,8 @@ int main(const int argc, char *argv[]) {
 
     log_info("Device selected");
 
-    pthread_t processing_thread = 0;
-    pthread_t uplink_thread = 0;
+    pthread_t processing_thread ;
+    pthread_t uplink_thread;
 
     ProcessContext process_context = {&psb, &fsb, BUFFER_SIZE, audio_device.default_sample_rate_hz};
     RelayContext relay_context = {&mqtt_config, &fsb};
