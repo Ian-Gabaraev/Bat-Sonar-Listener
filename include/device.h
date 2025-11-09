@@ -2,8 +2,8 @@
 
 #define MAX_DEVICES 16
 #define MAX_DEVICE_NAME 256
-
-#include "../../include/buffer.h"
+#include <stdint.h>
+#include "buffer.h"
 
 typedef struct {
     char device_name[MAX_DEVICE_NAME];

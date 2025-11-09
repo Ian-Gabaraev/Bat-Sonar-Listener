@@ -5,7 +5,6 @@
 #include <string.h>
 
 #include "include/buffer.h"
-#include "src/capture/capture.h"
 #include "src/process/process.h"
 #include "src/uplink/uplink.h"
 #include "src/utilities/utilities.h"
@@ -14,11 +13,12 @@
 #define FIVE_MINUTES 300
 #define ONE_HOUR 3600
 
-#define MAX_DURATION_SECONDS (1u << 16)
+#define MAX_DURATION_SECONDS (1u << 16) // 2^16
 
 bool DEBUG = true;
 bool AUTO = false;
 bool TIMER = false;
+bool PING_IOT_CORE = false;
 
 uint32_t BUFFER_SIZE;
 uint16_t RECORDING_DURATION_SECONDS = 3600;
@@ -28,31 +28,6 @@ AvailableDevice available_devices;
 
 ProcessingSyncBuffer psb;
 FeaturesSyncBuffer fsb;
-
-static int input_device_id(const AvailableDevice *devices) {
-    int c;
-    printf("\u25b6 Please enter device #: \n");
-    while ((c = getchar()) != EOF && !isspace(c)) {
-        const int n = c - '0';
-        if (in_array(devices->device_ids, devices->device_count, n)) {
-            return n;
-        }
-    }
-    printf("Not found. Using default # 0\n");
-    exit(EXIT_FAILURE);
-}
-
-void send_connected_message(MQTTConfig *mqtt_config) {
-    char payload[1024];
-    SystemSummary summary;
-    collect_info(&summary);
-    const time_t now = time(NULL);
-
-    snprintf(payload, sizeof(payload), "{\"cpu_name\":\"%s\", \"hostname\":\"%s\", \"timestamp\":%ld}",
-             summary.cpu_name, summary.hostname, now);
-
-    send_message(mqtt_config, payload);
-}
 
 int main(const int argc, char *argv[]) {
     suppress_alsa_errors();
@@ -89,10 +64,12 @@ int main(const int argc, char *argv[]) {
     const char *certs_path = argv[3];
     const char *aws_endpoint = argv[4];
 
-    // MQTTConfig mqtt_config;
-    // init_config(mqtt_topic, certs_path, aws_endpoint, &mqtt_config);
-    // init_client(&mqtt_config);
-    // send_connected_message(&mqtt_config);
+    if (PING_IOT_CORE) {
+        MQTTConfig mqtt_config;
+        init_config(mqtt_topic, certs_path, aws_endpoint, &mqtt_config);
+        init_client(&mqtt_config);
+        send_connected_message(&mqtt_config);
+    }
 
     int16_t *p_storage = calloc(BUFFER_SIZE, sizeof(int16_t));
     init_psb(&psb, p_storage); // initialize processing sync buffer

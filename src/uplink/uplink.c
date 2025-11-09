@@ -5,6 +5,9 @@
 #include <string.h>
 #include <unistd.h>
 
+#include "../../include/system.h"
+#include "../utilities/utilities.h"
+
 #define QOS 0
 #define TIMEOUT_MS 10000L
 
@@ -14,6 +17,18 @@
 extern bool DEBUG;
 
 static MQTTClient client;
+
+void send_connected_message(MQTTConfig *mqtt_config) {
+    char payload[1024];
+    SystemSummary summary;
+    collect_info(&summary);
+    const time_t now = time(NULL);
+
+    snprintf(payload, sizeof(payload), "{\"cpu_name\":\"%s\", \"hostname\":\"%s\", \"timestamp\":%ld}",
+             summary.cpu_name, summary.hostname, now);
+
+    send_message(mqtt_config, payload);
+}
 
 void init_config(const char *mqtt_topic, const char *certs_path, const char *aws_endpoint, MQTTConfig *mqtt_config) {
     snprintf(mqtt_config->aws_endpoint, sizeof(mqtt_config->aws_endpoint), "ssl://%s:8883", aws_endpoint);

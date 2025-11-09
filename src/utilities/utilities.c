@@ -1,15 +1,31 @@
 #include "utilities.h"
 
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/sysinfo.h>
 #include <unistd.h>
+
+#include "../../include/device.h"
 
 int in_array(const unsigned *arr, const size_t len, const int value) {
     for (size_t i = 0; i < len; i++) {
         if (arr[i] == value)
             return 1;
     }
+    return 0;
+}
+
+int input_device_id(const AvailableDevice *devices) {
+    int c;
+    printf("\u25b6 Please enter device #: \n");
+    while ((c = getchar()) != EOF && !isspace(c)) {
+        const int n = c - '0';
+        if (in_array(devices->device_ids, devices->device_count, n)) {
+            return n;
+        }
+    }
+    printf("Not found. Using default # 0\n");
     return 0;
 }
 

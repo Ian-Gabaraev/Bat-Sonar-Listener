@@ -9,7 +9,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(SRC_FILES
         main.c
         src/capture/capture.c
-        src/capture/capture.h
         src/config/config.c
         src/config/config.h
         src/utilities/utilities.c
@@ -30,6 +29,7 @@ set(SRC_FILES
         include/reader.h
         include/config.h
         src/buffer/fsb_processing.c
+        include/device.h
 )
 
 # --- Executable ---
