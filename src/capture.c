@@ -51,7 +51,7 @@ void display_stream_settings(AudioDevice *audio_device, const uint32_t frames) {
     }
 }
 
-int start_stream(const uint32_t frames, AudioDevice *audio_device, ProcessingSyncBuffer *rb) {
+int start_stream(const uint32_t frames, AudioDevice *audio_device, ProcessingSyncBuffer *rb, FeaturesSyncBuffer *fb) {
     display_stream_settings(audio_device, frames);
     PaError err;
     PaStream *stream = NULL;
@@ -91,6 +91,7 @@ int start_stream(const uint32_t frames, AudioDevice *audio_device, ProcessingSyn
     printf("\u276F Listening... Press Enter to stop.\n");
     (void) getchar();
     rb->producer_online = false; // Indicate that the producer is offline
+    fb->producer_online = false;
     Pa_StopStream(stream);
     Pa_CloseStream(stream);
     Pa_Terminate();

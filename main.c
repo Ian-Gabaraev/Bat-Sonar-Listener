@@ -114,16 +114,20 @@ int main(const int argc, char *argv[]) {
 
     log_info("Threads started");
 
-    start_stream(BUFFER_SIZE, &audio_device, &psb);
+    start_stream(BUFFER_SIZE, &audio_device, &psb, &fsb);
 
     pthread_join(processing_thread, NULL);
     pthread_join(uplink_thread, NULL);
 
-    cleanup();
+    paho_cleanup();
+
     free(p_storage);
     free(f_storage);
+
     log_info("Cleaned up resources");
     log_info("App exited");
+
     logger_close();
+
     return 0;
 }

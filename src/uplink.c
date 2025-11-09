@@ -159,6 +159,12 @@ AudioFeatures *read_from_fsb(FeaturesSyncBuffer *buffer) {
 
 void *relay_thread(const RelayContext *rc) {
     while (true) {
+        if (rc->fsb->producer_online == false) {
+            if (LIVE_DEBUG)
+                fprintf(stdout, "\u2705 Exiting relay thread.\n");
+            log_warning("Producer offline. Exiting relay thread");
+            break;
+        }
         const AudioFeatures *features = read_from_fsb(rc->fsb);
         if (features == NULL) continue;
         char payload[1024];
@@ -170,7 +176,7 @@ void *relay_thread(const RelayContext *rc) {
     }
 }
 
-void cleanup() {
+void paho_cleanup() {
     MQTTClient_disconnect(client, 10000);
     MQTTClient_destroy(&client);
 }

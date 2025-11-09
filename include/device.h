@@ -24,6 +24,6 @@ void get_audio_devices();
 void load_ultrasonic_devices(AvailableDevice *available_devices);
 void get_host_api_info(int index);
 void describe_available_ultrasonic_devices(AvailableDevice *available_devices);
-int start_stream(uint32_t frames, AudioDevice *audio_device, ProcessingSyncBuffer *rb);
+int start_stream(uint32_t frames, AudioDevice *audio_device, ProcessingSyncBuffer *rb, FeaturesSyncBuffer *fb);
 void set_up_input_params(PaStreamParameters *streamParameters, const AudioDevice *audio_device);
 void display_stream_settings(AudioDevice *audio_device, uint32_t frames);
