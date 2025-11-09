@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stddef.h>
+
+
 #include "config.h"
 #include "device.h"
 #include "system.h"

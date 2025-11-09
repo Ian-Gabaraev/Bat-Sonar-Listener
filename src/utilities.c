@@ -8,6 +8,9 @@
 
 #include "../include/device.h"
 #include "../include/system.h"
+#include "../include/logger.h"
+
+extern bool LIVE_DEBUG;
 
 int in_array(const unsigned *arr, const size_t len, const int value) {
     for (size_t i = 0; i < len; i++) {
@@ -26,7 +29,8 @@ int input_device_id(const AvailableDevice *devices) {
             return n;
         }
     }
-    printf("Not found. Using default # 0\n");
+    if (LIVE_DEBUG) fprintf(stdout,"Not found. Using default # 0\n");
+    log_warning("Device not found. Default to 0");
     return 0;
 }
 

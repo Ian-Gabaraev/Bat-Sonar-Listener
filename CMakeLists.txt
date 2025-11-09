@@ -18,6 +18,7 @@ set(SRC_FILES
         src/psb_processing.c
         src/process.c
         src/uplink.c
+        src/logger.c
 
         # --- KissFFT source code
         src/dsp/kiss_fft/kiss_fft.c
@@ -35,6 +36,7 @@ set(SRC_FILES
         include/process.h
         include/uplink.h
         include/utilities.h
+        include/logger.h
 )
 
 # --- Executable ---

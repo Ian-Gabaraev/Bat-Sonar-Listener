@@ -8,6 +8,7 @@
 #include "./dsp/kiss_fft/kiss_fftr.h"
 
 extern uint32_t BUFFER_SIZE;
+extern bool LIVE_DEBUG;
 
 float get_dominant_freq(const ReaderContext *rc, const size_t num_of_elements) {
     float array[num_of_elements];
@@ -103,14 +104,14 @@ void process(const ReaderContext *rc, struct timespec *start, struct timespec *e
     clock_gettime(CLOCK_MONOTONIC, end);
     double elapsed = (double) (end->tv_sec - start->tv_sec);
     elapsed += (double) (end->tv_nsec - start->tv_nsec) / 1.0e6;
-    printf("\u2705 Reader thread elapsed: %.1lf ms\n", elapsed);
+    if (LIVE_DEBUG) printf("\u2705 Reader thread elapsed: %.1lf ms\n", elapsed);
 }
 
 void *reader_thread(const ReaderContext *rc) {
     struct timespec start, end;
     while (true) {
         if (rc->buffer->producer_online == false) {
-            printf("\u2705 Exiting reader thread.\n");
+            if (LIVE_DEBUG) fprintf(stdout, "\u2705 Exiting reader thread.\n");
             break;
         }
         if (psb_full(rc->buffer)) {

@@ -5,6 +5,7 @@
 
 #include "../include/system.h"
 #include "../include/utilities.h"
+#include "../include/logger.h"
 
 #define QOS 0
 #define TIMEOUT_MS 10000L
@@ -12,7 +13,7 @@
 #include <openssl/err.h>
 #include <stdbool.h>
 
-extern bool DEBUG;
+extern bool LIVE_DEBUG;
 
 static MQTTClient client;
 
@@ -27,14 +28,16 @@ void send_message(MQTTConfig *config, char *payload) {
 
     MQTTClient_deliveryToken token;
     if ((rc = MQTTClient_publishMessage(client, config->mqtt_topic, &mqttMessage, &token)) != MQTTCLIENT_SUCCESS) {
-        fprintf(stderr, "MQTTClient_publishMessage failed, rc=%d\n", rc);
+        if (LIVE_DEBUG) fprintf(stderr, "MQTTClient_publishMessage failed, rc=%d\n", rc);
+        log_error("MQTTClient_publishMessage failed");
     }
 
     rc = MQTTClient_waitForCompletion(client, token, TIMEOUT_MS);
     if (rc != MQTTCLIENT_SUCCESS) {
-        fprintf(stderr, "waitForCompletion failed, rc=%d\n", rc);
+        if (LIVE_DEBUG) fprintf(stderr, "waitForCompletion failed, rc=%d\n", rc);
     } else {
-        printf("Published to topic '%s': %s\n", config->mqtt_topic, payload);
+        if (LIVE_DEBUG) fprintf(stdout, "Published to topic '%s': %s\n", config->mqtt_topic, payload);
+        log_info("Published to MQTT topic '%s': %s", config->mqtt_topic, payload);
     }
 }
 
@@ -64,10 +67,16 @@ void init_config(const char *mqtt_topic, const char *certs_path, const char *aws
     mqtt_config->qos = QOS;
     mqtt_config->timeout_ms = TIMEOUT_MS;
 
-    printf("Initialized MQTT Config:\n");
-    printf("\tAWS Endpoint: %s\n", mqtt_config->aws_endpoint);
-    printf("\tMQTT Topic: %s\n", mqtt_config->mqtt_topic);
-    printf("\tClient ID: %s\n", mqtt_config->client_id);
+    if (LIVE_DEBUG) {
+        printf("Initialized MQTT Config:\n");
+        printf("\tAWS Endpoint: %s\n", mqtt_config->aws_endpoint);
+        printf("\tMQTT Topic: %s\n", mqtt_config->mqtt_topic);
+        printf("\tClient ID: %s\n", mqtt_config->client_id);
+    }
+    log_info("Initialized MQTT Config");
+    log_info("AWS Endpoint: %s", mqtt_config->aws_endpoint);
+    log_info("MQTT Topic: %s", mqtt_config->mqtt_topic);
+    log_info("Client ID: %s", mqtt_config->client_id);
 }
 
 unsigned init_client(const MQTTConfig *mqtt_config) {
@@ -75,7 +84,7 @@ unsigned init_client(const MQTTConfig *mqtt_config) {
 
     if ((rc = MQTTClient_create(&client, mqtt_config->aws_endpoint, mqtt_config->client_id, MQTTCLIENT_PERSISTENCE_NONE,
                                 NULL)) != MQTTCLIENT_SUCCESS) {
-        fprintf(stderr, "create rc=%d\n", rc);
+        if (LIVE_DEBUG) fprintf(stderr, "create rc=%d\n", rc);
         return 1;
     }
 
@@ -85,7 +94,8 @@ unsigned init_client(const MQTTConfig *mqtt_config) {
     if (access(mqtt_config->ca_path, F_OK) == 0) {
         ssl.trustStore = mqtt_config->ca_path;
     } else {
-        fprintf(stderr, "CA file not found: %s\n", mqtt_config->ca_path);
+        if (LIVE_DEBUG) fprintf(stderr, "CA file not found: %s\n", mqtt_config->ca_path);
+        log_error("CA filed not found: %s", mqtt_config->ca_path);
         return 0;
     }
 
@@ -93,14 +103,16 @@ unsigned init_client(const MQTTConfig *mqtt_config) {
         ssl.CApath = mqtt_config->cert_path;
         ssl.keyStore = mqtt_config->cert_path;
     } else {
-        fprintf(stderr, "Cert file not found: %s\n", mqtt_config->ca_path);
+        if (LIVE_DEBUG) fprintf(stderr, "Cert file not found: %s\n", mqtt_config->ca_path);
+        log_error("Certificate file not found: %s", mqtt_config-> ca_path);
         return 0;
     }
 
     if (access(mqtt_config->key_path, F_OK) == 0) {
         ssl.privateKey = mqtt_config->key_path;
     } else {
-        fprintf(stderr, "Private key file not found: %s\n", mqtt_config->key_path);
+        if (LIVE_DEBUG) fprintf(stderr, "Private key file not found: %s\n", mqtt_config->key_path);
+        log_error("Private key not found: %s", mqtt_config->key_path);
         return 0;
     }
 
@@ -117,11 +129,12 @@ unsigned init_client(const MQTTConfig *mqtt_config) {
 
     rc = MQTTClient_connect(client, &conn);
     if (rc != MQTTCLIENT_SUCCESS) {
-        fprintf(stderr, "connect rc=%d\n", rc);
+        if (LIVE_DEBUG) fprintf(stderr, "connect rc=%d\n", rc);
         MQTTClient_destroy(client);
         return 2;
     }
-    fprintf(stdout, "Connected to AWS IoT Core at %s\n", mqtt_config->aws_endpoint);
+    if (LIVE_DEBUG) fprintf(stdout, "Connected to AWS IoT Core at %s\n", mqtt_config->aws_endpoint);
+    log_info("Connected to AWS IoT Core at %s", mqtt_config->aws_endpoint);
     return 1;
 }
 

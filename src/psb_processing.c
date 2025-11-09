@@ -3,9 +3,10 @@
 #include <time.h>
 
 #include "../include/buffer.h"
+#include "../include/logger.h"
 
 extern uint32_t BUFFER_SIZE;
-extern bool DEBUG;
+extern bool LIVE_DEBUG;
 extern uint16_t RECORDING_DURATION_SECONDS;
 
 bool init_psb(ProcessingSyncBuffer *buffer, int16_t *storage) {
@@ -20,11 +21,12 @@ bool init_psb(ProcessingSyncBuffer *buffer, int16_t *storage) {
     buffer->storage = storage;
     buffer->producer_online = true;
 
-    if (DEBUG) {
-        const time_t now = time(NULL);
-        fprintf(stdout, "\033[0;32m[INFO @ %ld] Processing buffer initialized with size: %d\n", now, BUFFER_SIZE);
-        fprintf(stdout, "[INFO @ %ld] Mode: AUTO. Listening for %d seconds\n", now, RECORDING_DURATION_SECONDS);
+    if (LIVE_DEBUG) {
+        fprintf(stdout, "Processing buffer initialized with size: %d\n", BUFFER_SIZE);
+        fprintf(stdout, "Mode: AUTO. Listening for %d seconds\n", RECORDING_DURATION_SECONDS);
     }
+    log_info("Processing buffer initialized with size: %d", BUFFER_SIZE);
+    log_info("Mode: AUTO. Listening for %d seconds", RECORDING_DURATION_SECONDS);
 
     return true;
 };
