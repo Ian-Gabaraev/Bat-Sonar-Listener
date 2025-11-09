@@ -8,28 +8,33 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 # --- Source files ---
 set(SRC_FILES
         main.c
-        src/capture/capture.c
+
+        # -- C source code
+        src/capture.c
         src/config/config.c
         src/config/config.h
-        src/utilities/utilities.c
-        src/utilities/utilities.h
-        src/buffer/fsb_processing.c
-        src/buffer/psb_processing.c
-        src/process/process.c
-        src/process/process.h
+        src/utilities.c
+        src/fsb_processing.c
+        src/psb_processing.c
+        src/process.c
+        src/uplink.c
+
+        # --- KissFFT source code
         src/dsp/kiss_fft/kiss_fft.c
         src/dsp/kiss_fft/kiss_fftr.c
         src/dsp/kiss_fft/kiss_fft.h
         src/dsp/kiss_fft/kiss_fftr.h
-        src/uplink/uplink.c
-        src/uplink/uplink.h
+
+        # --- Public headers ---
         include/buffer.h
         include/audio.h
         include/system.h
         include/reader.h
         include/config.h
-        src/buffer/fsb_processing.c
         include/device.h
+        include/process.h
+        include/uplink.h
+        include/utilities.h
 )
 
 # --- Executable ---

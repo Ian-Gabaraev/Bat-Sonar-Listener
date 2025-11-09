@@ -1,12 +1,10 @@
-#include "uplink.h"
-
 #include <MQTTClient.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 
-#include "../../include/system.h"
-#include "../utilities/utilities.h"
+#include "../include/system.h"
+#include "../include/utilities.h"
 
 #define QOS 0
 #define TIMEOUT_MS 10000L
@@ -17,6 +15,28 @@
 extern bool DEBUG;
 
 static MQTTClient client;
+
+void send_message(MQTTConfig *config, char *payload) {
+    int rc;
+
+    MQTTClient_message mqttMessage = MQTTClient_message_initializer;
+    mqttMessage.payload = (void *) payload;
+    mqttMessage.payloadlen = (int) strlen(payload);
+    mqttMessage.qos = QOS;
+    mqttMessage.retained = 0;
+
+    MQTTClient_deliveryToken token;
+    if ((rc = MQTTClient_publishMessage(client, config->mqtt_topic, &mqttMessage, &token)) != MQTTCLIENT_SUCCESS) {
+        fprintf(stderr, "MQTTClient_publishMessage failed, rc=%d\n", rc);
+    }
+
+    rc = MQTTClient_waitForCompletion(client, token, TIMEOUT_MS);
+    if (rc != MQTTCLIENT_SUCCESS) {
+        fprintf(stderr, "waitForCompletion failed, rc=%d\n", rc);
+    } else {
+        printf("Published to topic '%s': %s\n", config->mqtt_topic, payload);
+    }
+}
 
 void send_connected_message(MQTTConfig *mqtt_config) {
     char payload[1024];
@@ -103,28 +123,6 @@ unsigned init_client(const MQTTConfig *mqtt_config) {
     }
     fprintf(stdout, "Connected to AWS IoT Core at %s\n", mqtt_config->aws_endpoint);
     return 1;
-}
-
-void send_message(MQTTConfig *config, char *payload) {
-    int rc;
-
-    MQTTClient_message mqttMessage = MQTTClient_message_initializer;
-    mqttMessage.payload = (void *) payload;
-    mqttMessage.payloadlen = (int) strlen(payload);
-    mqttMessage.qos = QOS;
-    mqttMessage.retained = 0;
-
-    MQTTClient_deliveryToken token;
-    if ((rc = MQTTClient_publishMessage(client, config->mqtt_topic, &mqttMessage, &token)) != MQTTCLIENT_SUCCESS) {
-        fprintf(stderr, "MQTTClient_publishMessage failed, rc=%d\n", rc);
-    }
-
-    rc = MQTTClient_waitForCompletion(client, token, TIMEOUT_MS);
-    if (rc != MQTTCLIENT_SUCCESS) {
-        fprintf(stderr, "waitForCompletion failed, rc=%d\n", rc);
-    } else {
-        printf("Published to topic '%s': %s\n", config->mqtt_topic, payload);
-    }
 }
 
 void cleanup() {

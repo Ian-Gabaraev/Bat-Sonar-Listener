@@ -1,2 +1,2 @@
  #/bin/bash
- clang-format -i $(find . -name "*.c" -o -name "*.h")
+make format && clang-format -i $(find . -name "*.c" -o -name "*.h")

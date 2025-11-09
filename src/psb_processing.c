@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "../../include/buffer.h"
+#include "../include/buffer.h"
 
 extern uint32_t BUFFER_SIZE;
 extern bool DEBUG;

@@ -1,4 +1,4 @@
-#include "utilities.h"
+#include "../include/utilities.h"
 
 #include <ctype.h>
 #include <stdio.h>
@@ -6,7 +6,8 @@
 #include <sys/sysinfo.h>
 #include <unistd.h>
 
-#include "../../include/device.h"
+#include "../include/device.h"
+#include "../include/system.h"
 
 int in_array(const unsigned *arr, const size_t len, const int value) {
     for (size_t i = 0; i < len; i++) {

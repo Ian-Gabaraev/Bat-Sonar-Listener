@@ -5,9 +5,9 @@
 #include <string.h>
 
 #include "include/buffer.h"
-#include "src/process/process.h"
-#include "src/uplink/uplink.h"
-#include "src/utilities/utilities.h"
+#include "include/process.h"
+#include "include/uplink.h"
+#include "include/utilities.h"
 
 #define ONE_MINUTE 60
 #define FIVE_MINUTES 300

@@ -1,12 +1,11 @@
-#include "process.h"
-
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-#include "../../include/buffer.h"
-#include "../dsp/kiss_fft/kiss_fftr.h"
+#include "../include/buffer.h"
+#include "../include/reader.h"
+#include "./dsp/kiss_fft/kiss_fftr.h"
 
 extern uint32_t BUFFER_SIZE;
 

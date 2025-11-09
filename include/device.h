@@ -2,6 +2,7 @@
 
 #define MAX_DEVICES 16
 #define MAX_DEVICE_NAME 256
+#include <portaudio.h>
 #include <stdint.h>
 #include "buffer.h"
 
@@ -24,3 +25,5 @@ void load_ultrasonic_devices(AvailableDevice *available_devices);
 void get_host_api_info(int index);
 void describe_available_ultrasonic_devices(AvailableDevice *available_devices);
 int start_stream(uint32_t frames, AudioDevice *audio_device, ProcessingSyncBuffer *rb);
+void set_up_input_params(PaStreamParameters *streamParameters, const AudioDevice *audio_device);
+void display_stream_settings(AudioDevice *audio_device, uint32_t frames);

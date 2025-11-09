@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "../../include/buffer.h"
-#include "../../include/device.h"
+#include "../include/buffer.h"
+#include "../include/device.h"
 
 #define ULTRASONIC_DEVICE_THRESHOLD_HZ 48000
 #define DEVICE_INFO_SEPARATOR "*****************************\n"
