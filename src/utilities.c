@@ -7,8 +7,8 @@
 #include <unistd.h>
 
 #include "../include/device.h"
-#include "../include/system.h"
 #include "../include/logger.h"
+#include "../include/system.h"
 
 extern bool LIVE_DEBUG;
 
@@ -29,7 +29,8 @@ int input_device_id(const AvailableDevice *devices) {
             return n;
         }
     }
-    if (LIVE_DEBUG) fprintf(stdout,"Not found. Using default # 0\n");
+    if (LIVE_DEBUG)
+        fprintf(stdout, "Not found. Using default # 0\n");
     log_warning("Device not found. Default to 0");
     return 0;
 }

@@ -58,7 +58,8 @@ int start_stream(const uint32_t frames, AudioDevice *audio_device, ProcessingSyn
 
     if ((err = Pa_Initialize()) != paNoError) {
         rb->producer_online = false;
-        if (LIVE_DEBUG) fprintf(stderr, "PortAudio initialization error: %s\n", Pa_GetErrorText(err));
+        if (LIVE_DEBUG)
+            fprintf(stderr, "PortAudio initialization error: %s\n", Pa_GetErrorText(err));
         log_error("PortAudio initialization error: %s", Pa_GetErrorText(err));
         return 0;
     }
@@ -70,7 +71,8 @@ int start_stream(const uint32_t frames, AudioDevice *audio_device, ProcessingSyn
 
     if (err != paNoError) {
         rb->producer_online = false;
-        if (LIVE_DEBUG) fprintf(stderr, "PortAudio opening stream error: %s\n", Pa_GetErrorText(err));
+        if (LIVE_DEBUG)
+            fprintf(stderr, "PortAudio opening stream error: %s\n", Pa_GetErrorText(err));
         log_error("PortAudio opening stream error: %s", Pa_GetErrorText(err));
         Pa_Terminate();
         return 0;
@@ -78,7 +80,8 @@ int start_stream(const uint32_t frames, AudioDevice *audio_device, ProcessingSyn
 
     if ((err = Pa_StartStream(stream)) != paNoError) {
         rb->producer_online = false;
-        if (LIVE_DEBUG) fprintf(stderr, "PortAudio starting stream error: %s\n", Pa_GetErrorText(err));
+        if (LIVE_DEBUG)
+            fprintf(stderr, "PortAudio starting stream error: %s\n", Pa_GetErrorText(err));
         log_error("PortAudio starting stream error: %s", Pa_GetErrorText(err));
         Pa_CloseStream(stream);
         Pa_Terminate();
@@ -118,12 +121,12 @@ void get_audio_devices() {
 
     for (int i = 0; i < num_devices; i++) {
         const PaDeviceInfo *device_info = Pa_GetDeviceInfo(i);
-        fprintf(stdout,"Device %d: %s\n", i, device_info->name);
-        fprintf(stdout,"Default sample rate: %f\n", device_info->defaultSampleRate);
-        fprintf(stdout,"Max output channels: %d\n", device_info->maxOutputChannels);
-        fprintf(stdout,"Max input channels: %d\n", device_info->maxInputChannels);
-        fprintf(stdout,"Default channel count: %d\n", device_info->maxOutputChannels);
-        fprintf(stdout,DEVICE_INFO_SEPARATOR);
+        fprintf(stdout, "Device %d: %s\n", i, device_info->name);
+        fprintf(stdout, "Default sample rate: %f\n", device_info->defaultSampleRate);
+        fprintf(stdout, "Max output channels: %d\n", device_info->maxOutputChannels);
+        fprintf(stdout, "Max input channels: %d\n", device_info->maxInputChannels);
+        fprintf(stdout, "Default channel count: %d\n", device_info->maxOutputChannels);
+        fprintf(stdout, DEVICE_INFO_SEPARATOR);
     }
 
     Pa_Terminate();
@@ -154,11 +157,11 @@ void load_ultrasonic_devices(AvailableDevice *available_devices) {
 void describe_available_ultrasonic_devices(AvailableDevice *available_devices) {
     fprintf(stdout, "Found potential ultrasonic devices: %d \n", available_devices->device_count);
     for (int i = 0; i < available_devices->device_count; i++) {
-        fprintf(stdout,"Device #%d: \n", i);
-        fprintf(stdout,"\tName: \033[4m%s\033[0m \n", available_devices->devices[i].device_name);
-        fprintf(stdout,"\tSampling rate: \033[4m%.0u\033[0m kHz\n",
-               available_devices->devices[i].default_sample_rate_hz / 1000);
-        fprintf(stdout,"\tMax input channels: \033[4m%d\033[0m\n", available_devices->devices[i].max_input_channels);
-        fprintf(stdout,DEVICE_INFO_SEPARATOR);
+        fprintf(stdout, "Device #%d: \n", i);
+        fprintf(stdout, "\tName: \033[4m%s\033[0m \n", available_devices->devices[i].device_name);
+        fprintf(stdout, "\tSampling rate: \033[4m%.0u\033[0m kHz\n",
+                available_devices->devices[i].default_sample_rate_hz / 1000);
+        fprintf(stdout, "\tMax input channels: \033[4m%d\033[0m\n", available_devices->devices[i].max_input_channels);
+        fprintf(stdout, DEVICE_INFO_SEPARATOR);
     }
 }
