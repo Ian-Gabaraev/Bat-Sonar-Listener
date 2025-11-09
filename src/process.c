@@ -1,16 +1,18 @@
+#include "../include/process.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
 #include "../include/buffer.h"
-#include "../include/reader.h"
+#include "../include/logger.h"
 #include "./dsp/kiss_fft/kiss_fftr.h"
 
 extern uint32_t BUFFER_SIZE;
 extern bool LIVE_DEBUG;
 
-float get_dominant_freq(const ReaderContext *rc, const size_t num_of_elements) {
+float get_dominant_freq(const ProcessContext *rc, const size_t num_of_elements) {
     float array[num_of_elements];
 
     for (int i = 0; i < num_of_elements; i++) {
@@ -93,27 +95,30 @@ double get_zcr(const int16_t *arr, const size_t num_of_elements) {
     return (double) sum / (double) num_of_elements;
 }
 
-void process(const ReaderContext *rc, struct timespec *start, struct timespec *end) {
+void process(const ProcessContext *rc, struct timespec *start, struct timespec *end) {
     clock_gettime(CLOCK_MONOTONIC, start);
     const double rms = get_rms(rc->buffer->storage, BUFFER_SIZE);
     const double zcr = get_zcr(rc->buffer->storage, BUFFER_SIZE);
     const int amp_max = get_amp_max(rc->buffer->storage, BUFFER_SIZE);
     const float dom_freq = get_dominant_freq(rc, BUFFER_SIZE);
-    // AudioFeatures audio_features = {rms, zcr, amp_max, dom_freq};
+    const AudioFeatures audio_features = {rms, zcr, amp_max, dom_freq};
+
+    write_to_fsb(rc->fsb, audio_features); // Write features to features buffer
 
     clock_gettime(CLOCK_MONOTONIC, end);
     double elapsed = (double) (end->tv_sec - start->tv_sec);
     elapsed += (double) (end->tv_nsec - start->tv_nsec) / 1.0e6;
     if (LIVE_DEBUG)
-        printf("\u2705 Reader thread elapsed: %.1lf ms\n", elapsed);
+        fprintf(stdout, "\u2705 Reader thread elapsed: %.1lf ms\n", elapsed);
 }
 
-void *reader_thread(const ReaderContext *rc) {
+void *reader_thread(const ProcessContext *rc) {
     struct timespec start, end;
     while (true) {
         if (rc->buffer->producer_online == false) {
             if (LIVE_DEBUG)
                 fprintf(stdout, "\u2705 Exiting reader thread.\n");
+            log_warning("Producer offline. Exiting reader thread");
             break;
         }
         if (psb_full(rc->buffer)) {

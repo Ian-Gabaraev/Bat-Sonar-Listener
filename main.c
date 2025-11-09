@@ -70,10 +70,11 @@ int main(const int argc, char *argv[]) {
     const char *certs_path = argv[3];
     const char *aws_endpoint = argv[4];
 
+    MQTTConfig mqtt_config;
+    init_config(mqtt_topic, certs_path, aws_endpoint, &mqtt_config);
+    init_client(&mqtt_config);
+
     if (PING_IOT_CORE) {
-        MQTTConfig mqtt_config;
-        init_config(mqtt_topic, certs_path, aws_endpoint, &mqtt_config);
-        init_client(&mqtt_config);
         send_connected_message(&mqtt_config);
         log_info("AWS IoT Core ping sent");
     }
@@ -102,14 +103,21 @@ int main(const int argc, char *argv[]) {
 
     log_info("Device selected");
 
-    pthread_t r_thread;
-    ReaderContext reader_context = {&psb, BUFFER_SIZE, audio_device.default_sample_rate_hz};
-    pthread_create(&r_thread, NULL, (void *(*) (void *) ) reader_thread, &reader_context);
+    pthread_t processing_thread = 0;
+    pthread_t uplink_thread = 0;
+
+    ProcessContext process_context = {&psb, &fsb, BUFFER_SIZE, audio_device.default_sample_rate_hz};
+    RelayContext relay_context = {&mqtt_config, &fsb};
+
+    pthread_create(&processing_thread, NULL, (void *(*) (void *) ) reader_thread, &process_context);
+    pthread_create(&uplink_thread, NULL, (void *(*) (void *) ) relay_thread, &relay_context);
 
     log_info("Threads started");
 
     start_stream(BUFFER_SIZE, &audio_device, &psb);
-    pthread_join(r_thread, NULL);
+
+    pthread_join(processing_thread, NULL);
+    pthread_join(uplink_thread, NULL);
 
     cleanup();
     free(p_storage);

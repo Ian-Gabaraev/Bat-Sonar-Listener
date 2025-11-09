@@ -42,9 +42,11 @@ bool rewind_psb(ProcessingSyncBuffer *buffer) {
 
 bool psb_full(const ProcessingSyncBuffer *buffer) { return buffer->writing_at == BUFFER_SIZE; };
 
-bool psb_blocked(ProcessingSyncBuffer *buffer) { return psb_full(buffer) && buffer->reading_at != buffer->writing_at; };
+bool psb_blocked(const ProcessingSyncBuffer *buffer) {
+    return psb_full(buffer) && buffer->reading_at != buffer->writing_at;
+};
 
-bool psb_overwrite(ProcessingSyncBuffer *buffer) {
+bool psb_overwrite(const ProcessingSyncBuffer *buffer) {
     return buffer->write_count > 0 && !(buffer->write_count % BUFFER_SIZE);
 };
 

@@ -28,3 +28,30 @@ bool init_fsb(FeaturesSyncBuffer *buffer, AudioFeatures *storage) {
 
     return true;
 };
+
+bool fsb_full(const FeaturesSyncBuffer *buffer) { return buffer->writing_at == BUFFER_SIZE; };
+bool fsb_blocked(const FeaturesSyncBuffer *buffer) {
+    return fsb_full(buffer) && buffer->reading_at != buffer->writing_at;
+};
+
+bool write_to_fsb(FeaturesSyncBuffer *buffer, const AudioFeatures value) {
+    if (fsb_full(buffer) && fsb_blocked(buffer)) {
+        buffer->skipped_count++;
+        return false;
+    }
+    if (fsb_full(buffer) && !fsb_blocked(buffer)) {
+        rewind_fsb(buffer);
+    }
+    buffer->storage[buffer->writing_at] = value;
+    buffer->write_count++;
+    buffer->writing_at++;
+
+    return true;
+};
+
+bool rewind_fsb(FeaturesSyncBuffer *buffer) {
+    buffer->reading_at = 0;
+    buffer->writing_at = 0;
+
+    return true;
+}

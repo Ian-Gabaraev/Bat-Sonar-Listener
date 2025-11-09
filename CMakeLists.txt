@@ -30,7 +30,6 @@ set(SRC_FILES
         include/buffer.h
         include/audio.h
         include/system.h
-        include/reader.h
         include/config.h
         include/device.h
         include/process.h

@@ -6,6 +6,7 @@
 #include "../include/logger.h"
 #include "../include/system.h"
 #include "../include/utilities.h"
+#include "../include/uplink.h"
 
 #define QOS 0
 #define TIMEOUT_MS 10000L
@@ -145,6 +146,28 @@ unsigned init_client(const MQTTConfig *mqtt_config) {
         fprintf(stdout, "Connected to AWS IoT Core at %s\n", mqtt_config->aws_endpoint);
     log_info("Connected to AWS IoT Core at %s", mqtt_config->aws_endpoint);
     return 1;
+}
+
+AudioFeatures *read_from_fsb(FeaturesSyncBuffer *buffer) {
+    if (buffer->reading_at >= buffer->writing_at) {
+        return NULL;
+    }
+    AudioFeatures *value = &buffer->storage[buffer->reading_at];
+    buffer->reading_at++;
+    return value;
+}
+
+void *relay_thread(const RelayContext *rc) {
+    while (true) {
+        const AudioFeatures *features = read_from_fsb(rc->fsb);
+        if (features == NULL) continue;
+        char payload[1024];
+        const time_t now = time(NULL);
+
+        snprintf(payload, sizeof(payload), "{\"dominant_frequency\":\"%f\", \"rms\":\"%f\", \"timestamp\":%ld}",
+                 features->dominant_freq, features->rms, now);
+        send_message(rc->mqtt_config, payload);
+    }
 }
 
 void cleanup() {
