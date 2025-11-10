@@ -17,6 +17,8 @@
 
 #define MAX_DURATION_SECONDS (1u << 16) // 2^16
 
+#define LOG_FILE_NAME "sonar.log"
+
 bool LIVE_DEBUG = true;
 bool AUTO = false;
 bool TIMER = false;
@@ -59,11 +61,17 @@ void process_args(UserSettings *settings, const int argc, char *argv[]) {
 
     if (argc >= 8) {
         settings->requested_duration = (uint16_t) strtoul(argv[7], NULL, 10);
-        if (settings->requested_duration >= MAX_DURATION_SECONDS - 1) {
+        if (settings->requested_duration > MAX_DURATION_SECONDS-1) {
             fprintf(stderr, "Duration exceeds limit %u", MAX_DURATION_SECONDS - 1);
             log_warning("Duration exceeds set limit %u", MAX_DURATION_SECONDS - 1);
             settings->timer = true;
-            TIMER = settings->timer;
+            TIMER = true;
+        }
+        if (settings->requested_duration < MAX_DURATION_SECONDS-1 && settings->requested_duration > 0) {
+            log_info("Set recording duration to %u seconds", settings->requested_duration);
+            settings->timer = true;
+            TIMER = true;
+            RECORDING_DURATION_SECONDS = settings->requested_duration;
         }
     }
 
@@ -78,7 +86,7 @@ void process_args(UserSettings *settings, const int argc, char *argv[]) {
 
 int main(const int argc, char *argv[]) {
     suppress_alsa_errors();
-    logger_init("sonar.log");
+    logger_init(LOG_FILE_NAME);
     log_info("App launched");
 
     UserSettings user_settings;
