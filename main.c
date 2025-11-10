@@ -38,7 +38,7 @@ void process_args(UserSettings *settings, const int argc, char *argv[]) {
         exit(EXIT_SUCCESS);
     }
 
-    if (argc < 4) {
+    if (argc < 5) {
         fprintf(stderr, "Missing mandatory arguments \n");
         fprintf(stderr, "sonar -lm <mqtt topic> <certificates path> <aws endpoint> [buffer size] [device index] [duration] [ping] \n");
         log_error("Missing mandatory arguments");
@@ -46,18 +46,18 @@ void process_args(UserSettings *settings, const int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    if (argc >= 5) {
+    if (argc >= 6) {
         settings->buffer_size = (uint32_t) strtoul(argv[5], NULL, 10); // convert str to unsigned long
         BUFFER_SIZE = settings->buffer_size;
     }
 
-    if (argc >= 6) {
+    if (argc >= 7) {
         settings->device_idx = (int) strtol(argv[6], NULL, 10); // convert str to long
         settings->_auto = settings->device_idx >= 0 ? true : false;
         AUTO = settings->_auto;
     }
 
-    if (argc >= 7) {
+    if (argc >= 8) {
         settings->requested_duration = (uint16_t) strtoul(argv[7], NULL, 10);
         if (settings->requested_duration >= MAX_DURATION_SECONDS - 1) {
             fprintf(stderr, "Duration exceeds limit %u", MAX_DURATION_SECONDS - 1);
@@ -67,7 +67,7 @@ void process_args(UserSettings *settings, const int argc, char *argv[]) {
         }
     }
 
-    if (argc >= 8) {
+    if (argc >= 9) {
         settings->ping = (int) strtol(argv[8], NULL, 10) == 1 ? true : false;
     }
 
