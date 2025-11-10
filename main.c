@@ -23,7 +23,7 @@ bool LIVE_DEBUG = true;
 bool AUTO = false;
 bool TIMER = false;
 
-uint32_t BUFFER_SIZE;
+uint32_t BUFFER_SIZE = 128000;
 uint16_t RECORDING_DURATION_SECONDS = 3600;
 
 AppConfig app_config;
