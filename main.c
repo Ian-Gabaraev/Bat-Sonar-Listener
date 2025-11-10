@@ -11,10 +11,6 @@
 #include "include/uplink.h"
 #include "include/utilities.h"
 
-#define ONE_MINUTE 60
-#define FIVE_MINUTES 300
-#define ONE_HOUR 3600
-
 #define MAX_DURATION_SECONDS (1u << 16) // 2^16
 
 #define LOG_FILE_NAME "sonar.log"
