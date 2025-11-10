@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "include/config.h"
 #include "include/buffer.h"
 #include "include/logger.h"
 #include "include/process.h"
@@ -19,7 +20,6 @@
 bool LIVE_DEBUG = true;
 bool AUTO = false;
 bool TIMER = false;
-bool PING_IOT_CORE = false;
 
 uint32_t BUFFER_SIZE;
 uint16_t RECORDING_DURATION_SECONDS = 3600;
@@ -30,71 +30,85 @@ AvailableDevice available_devices;
 ProcessingSyncBuffer psb;
 FeaturesSyncBuffer fsb;
 
-int main(const int argc, char *argv[]) {
-    suppress_alsa_errors();
-    logger_init("sonar.log");
+void process_args(UserSettings *settings, const int argc, char *argv[]) {
+    *settings = (UserSettings) { .ping = false, ._auto = false, .timer = false };
 
-    log_info("App launched");
-
-    int device_idx = -1;
     if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0) {
         help();
         exit(EXIT_SUCCESS);
     }
-    if (argc <= 1) {
-        fprintf(stderr, "Missing arguments \n");
-        log_error("Missing arguments");
+
+    if (argc < 4) {
+        fprintf(stderr, "Missing mandatory arguments \n");
+        fprintf(stderr, "sonar -lm <mqtt topic> <certificates path> <aws endpoint> [buffer size] [device index] [duration] [ping] \n");
+        log_error("Missing mandatory arguments");
+        log_error("Call using format: sonar -lm <mqtt topic> <certificates path> <aws endpoint> [buffer size] [device index] [duration] [ping]");
         exit(EXIT_FAILURE);
     }
 
     if (argc >= 5) {
-        BUFFER_SIZE = (uint32_t) strtoul(argv[5], NULL, 10); // convert str to unsigned long
+        settings->buffer_size = (uint32_t) strtoul(argv[5], NULL, 10); // convert str to unsigned long
+        BUFFER_SIZE = settings->buffer_size;
     }
+
     if (argc >= 6) {
-        device_idx = (int) strtol(argv[6], NULL, 10); // convert str to long
-        AUTO = device_idx >= 0 ? true : false;
+        settings->device_idx = (int) strtol(argv[6], NULL, 10); // convert str to long
+        settings->_auto = settings->device_idx >= 0 ? true : false;
+        AUTO = settings->_auto;
     }
+
     if (argc >= 7) {
-        const uint16_t requested_duration = (uint16_t) strtoul(argv[7], NULL, 10);
-        if (requested_duration >= MAX_DURATION_SECONDS - 1) {
+        settings->requested_duration = (uint16_t) strtoul(argv[7], NULL, 10);
+        if (settings->requested_duration >= MAX_DURATION_SECONDS - 1) {
             fprintf(stderr, "Duration exceeds limit %u", MAX_DURATION_SECONDS - 1);
             log_warning("Duration exceeds set limit %u", MAX_DURATION_SECONDS - 1);
-            TIMER = true;
-        } else {
-            TIMER = true;
-            RECORDING_DURATION_SECONDS = requested_duration;
+            settings->timer = true;
+            TIMER = settings->timer;
         }
     }
 
-    const char *mqtt_topic = argv[2];
-    const char *certs_path = argv[3];
-    const char *aws_endpoint = argv[4];
+    if (argc >= 8) {
+        settings->ping = (int) strtol(argv[8], NULL, 10) == 1 ? true : false;
+    }
+
+    settings->mqtt_topic = argv[2];
+    settings->certs_path = argv[3];
+    settings->aws_endpoint = argv[4];
+}
+
+int main(const int argc, char *argv[]) {
+    suppress_alsa_errors();
+    logger_init("sonar.log");
+    log_info("App launched");
+
+    UserSettings user_settings;
+    process_args(&user_settings, argc, argv);
 
     MQTTConfig mqtt_config;
-    init_config(mqtt_topic, certs_path, aws_endpoint, &mqtt_config);
+    init_config(user_settings.mqtt_topic, user_settings.certs_path, user_settings.aws_endpoint, &mqtt_config);
     init_client(&mqtt_config);
 
-    if (PING_IOT_CORE) {
+    if (user_settings.ping) {
         send_connected_message(&mqtt_config);
         log_info("AWS IoT Core ping sent");
     }
 
-    int16_t *p_storage = calloc(BUFFER_SIZE, sizeof(int16_t));
+    int16_t *p_storage = calloc(user_settings.buffer_size, sizeof(int16_t));
     init_psb(&psb, p_storage); // initialize processing sync buffer
 
-    AudioFeatures *f_storage = calloc(BUFFER_SIZE, sizeof(AudioFeatures));
+    AudioFeatures *f_storage = calloc(user_settings.buffer_size, sizeof(AudioFeatures));
     init_fsb(&fsb, f_storage); // initialize features sync buffer
 
     log_info("Buffers initialized");
 
     load_ultrasonic_devices(&available_devices);
-    if (!AUTO) {
+    if (!user_settings._auto) {
         describe_available_ultrasonic_devices(&available_devices);
     }
     AudioDevice audio_device;
 
-    if (device_idx >= 0) {
-        audio_device = available_devices.devices[device_idx];
+    if (user_settings.device_idx >= 0) {
+        audio_device = available_devices.devices[user_settings.device_idx];
     } else {
         const int device_id = input_device_id(&available_devices);
         (void) getchar();

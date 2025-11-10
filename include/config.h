@@ -1,4 +1,6 @@
 #pragma once
+#include <stdbool.h>
+#include <stdint.h>
 
 typedef struct {
     char mqtt_topic[512];
@@ -20,3 +22,15 @@ typedef struct {
     char mqtt_topic[128];
     char aws_endpoint[256];
 } AppConfig;
+
+typedef struct {
+    int device_idx;
+    char *mqtt_topic;
+    char *certs_path;
+    char *aws_endpoint;
+    uint16_t requested_duration;
+    uint32_t buffer_size;
+    bool timer;
+    bool _auto;
+    bool ping;
+} UserSettings;
