@@ -84,6 +84,23 @@ void process_args(UserSettings *settings, const int argc, char *argv[]) {
     settings->aws_endpoint = argv[4];
 }
 
+void select_device(const UserSettings *user_settings, AudioDevice *audio_device) {
+
+    load_ultrasonic_devices(&available_devices);
+    if (!user_settings->_auto) {
+        describe_available_ultrasonic_devices(&available_devices);
+    }
+
+    if (user_settings->device_idx >= 0) {
+        *audio_device = available_devices.devices[user_settings->device_idx];
+    } else {
+        const int device_id = input_device_id(&available_devices);
+        (void) getchar();
+        *audio_device = available_devices.devices[device_id];
+    }
+    log_info("Device selected");
+}
+
 int main(const int argc, char *argv[]) {
     suppress_alsa_errors();
     logger_init(LOG_FILE_NAME);
@@ -96,10 +113,7 @@ int main(const int argc, char *argv[]) {
     init_config(user_settings.mqtt_topic, user_settings.certs_path, user_settings.aws_endpoint, &mqtt_config);
     init_client(&mqtt_config);
 
-    if (user_settings.ping) {
-        send_connected_message(&mqtt_config);
-        log_info("AWS IoT Core ping sent");
-    }
+    if (user_settings.ping) send_connected_message(&mqtt_config);
 
     int16_t *p_storage = calloc(user_settings.buffer_size, sizeof(int16_t));
     init_psb(&psb, p_storage); // initialize processing sync buffer
@@ -107,34 +121,16 @@ int main(const int argc, char *argv[]) {
     AudioFeatures *f_storage = calloc(user_settings.buffer_size, sizeof(AudioFeatures));
     init_fsb(&fsb, f_storage); // initialize features sync buffer
 
-    log_info("Buffers initialized");
-
-    load_ultrasonic_devices(&available_devices);
-    if (!user_settings._auto) {
-        describe_available_ultrasonic_devices(&available_devices);
-    }
     AudioDevice audio_device;
-
-    if (user_settings.device_idx >= 0) {
-        audio_device = available_devices.devices[user_settings.device_idx];
-    } else {
-        const int device_id = input_device_id(&available_devices);
-        (void) getchar();
-        audio_device = available_devices.devices[device_id];
-    }
-
-    log_info("Device selected");
-
-    pthread_t processing_thread ;
-    pthread_t uplink_thread;
+    select_device(&user_settings, &audio_device);
 
     ProcessContext process_context = {&psb, &fsb, BUFFER_SIZE, audio_device.default_sample_rate_hz};
     RelayContext relay_context = {&mqtt_config, &fsb};
 
+    pthread_t processing_thread ;
+    pthread_t uplink_thread;
     pthread_create(&processing_thread, NULL, (void *(*) (void *) ) reader_thread, &process_context);
     pthread_create(&uplink_thread, NULL, (void *(*) (void *) ) relay_thread, &relay_context);
-
-    log_info("Threads started");
 
     start_stream(BUFFER_SIZE, &audio_device, &psb, &fsb);
 
@@ -142,13 +138,8 @@ int main(const int argc, char *argv[]) {
     pthread_join(uplink_thread, NULL);
 
     paho_cleanup();
-
     free(p_storage);
     free(f_storage);
-
-    log_info("Cleaned up resources");
-    log_info("App exited");
-
     logger_close();
 
     return 0;
